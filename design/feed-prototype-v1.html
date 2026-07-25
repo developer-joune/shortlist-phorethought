@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortlist — feed prototype v1</title>
+<style>
+  :root {
+    --canvas: #f7f4ef;
+    --surface: #ffffff;
+    --border: #e8e2d8;
+    --text-primary: #211d17;
+    --text-secondary: #6b6455;
+    --text-muted: #9a9384;
+    --accent: #c07830;
+    --accent-tint: #f5e8d8;
+    --accent-tint-border: #e0bf8f;
+    --step-filled: #c07830;
+    --step-empty: #ddd5c6;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .feed {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+  }
+
+  .feed-header {
+    margin-bottom: 20px;
+  }
+
+  .feed-greeting {
+    font-size: 23px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .stat-strip {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .stat-strip strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-stream {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(33, 29, 23, 0.04);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--accent-tint);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .company-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .card-timestamp {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .job-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .qual-line {
+    border-left: 3px solid var(--accent-tint-border);
+    background: var(--accent-tint);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #4a3d29;
+    margin: 0 0 14px;
+  }
+
+  .meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--canvas);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .status-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .step-tracker {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  .step-tracker .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--step-empty);
+    flex-shrink: 0;
+  }
+
+  .step-tracker .dot.filled {
+    background: var(--step-filled);
+  }
+
+  .step-tracker .line {
+    flex: 1;
+    height: 2px;
+    background: var(--step-empty);
+    margin: 0 4px;
+  }
+
+  .step-tracker .line.filled {
+    background: var(--step-filled);
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .card-action:hover {
+    text-decoration: underline;
+  }
+
+  .card-footer-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .spec-note {
+    max-width: 560px;
+    margin: 0 auto 32px;
+    padding: 12px 16px;
+    background: #fffaf0;
+    border: 1px dashed var(--accent-tint-border);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: ui-monospace, monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="spec-note">
+  Prototype v1 — structural reference only. Copy sourced from subcon_brand's tone/voice guide
+  (worked example, note_000). Company/role/skill details are that example's placeholder client (Maria),
+  not real client data. Status stage labels are placeholders pending subcon_qualgate's status model.
+</div>
+
+<div class="feed">
+
+  <div class="feed-header">
+    <p class="feed-greeting">Hey Maria, here's your week</p>
+    <p class="stat-strip"><strong>7</strong> applications sent this month · <strong>1</strong> company responded</p>
+  </div>
+
+  <div class="card-stream">
+
+    <!-- Card 1: newly applied -->
+    <article class="card">
+      <div class="card-header">
+        <div class="avatar">M</div>
+        <span class="company-name">Meridian Health</span>
+        <span class="card-timestamp">Today</span>
+      </div>
+      <h2 class="job-title">Senior Data Analyst</h2>
+      <p class="qual-line">
+        Your 5 years in healthcare analytics and the SQL + Tableau combo line up directly with
+        what they listed as must-haves — this wasn't a stretch match, it was a clean one.
+      </p>
+      <div class="meta-chips">
+        <span class="chip">Remote</span>
+        <span class="chip">$95–115k</span>
+        <span class="chip">Full-time</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Applied</span>
+        <div class="step-tracker" role="img" aria-label="Application status: Applied, step 1 of 4">
+          <div class="dot filled"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="card-action" href="#">See the full match card →</a>
+        <span class="card-footer-meta">Applied Jul 25</span>
+      </div>
+    </article>
+
+    <!-- Card 2: under review -->
+    <article class="card">
+      <div class="card-header">
+        <div class="avatar">C</div>
+        <span class="company-name">Cascade Logistics</span>
+        <span class="card-timestamp">3d ago</span>
+      </div>
+      <h2 class="job-title">Supply Chain Analyst</h2>
+      <p class="qual-line">
+        Your 6 years in supply-chain analytics and the Tableau cert line up directly with what
+        they're asking for.
+      </p>
+      <div class="meta-chips">
+        <span class="chip">Hybrid — Chicago, IL</span>
+        <span class="chip">$88–104k</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Under review</span>
+        <div class="step-tracker" role="img" aria-label="Application status: Under review, step 2 of 4">
+          <div class="dot filled"></div>
+          <div class="line filled"></div>
+          <div class="dot filled"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="card-action" href="#">See the full match card →</a>
+        <span class="card-footer-meta">Applied Jul 22</span>
+      </div>
+    </article>
+
+    <!-- Card 3: interview stage -->
+    <article class="card">
+      <div class="card-header">
+        <div class="avatar">N</div>
+        <span class="company-name">Norwell Insurance</span>
+        <span class="card-timestamp">1w ago</span>
+      </div>
+      <h2 class="job-title">Business Intelligence Analyst</h2>
+      <p class="qual-line">
+        They asked for 4+ years in BI tooling and a claims-adjacent domain background — your
+        history at Meridian covers both directly.
+      </p>
+      <div class="meta-chips">
+        <span class="chip">Remote</span>
+        <span class="chip">$102–120k</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Interview</span>
+        <div class="step-tracker" role="img" aria-label="Application status: Interview, step 3 of 4">
+          <div class="dot filled"></div>
+          <div class="line filled"></div>
+          <div class="dot filled"></div>
+          <div class="line filled"></div>
+          <div class="dot filled"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="card-action" href="#">See the full match card →</a>
+        <span class="card-footer-meta">Applied Jul 17</span>
+      </div>
+    </article>
+
+  </div>
+</div>
+
+</body>
+</html>

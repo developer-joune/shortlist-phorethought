@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shortlist.phorethought.local/schemas/client-profile.schema.json",
+  "title": "Shortlist Client Profile (Data Abstraction Layer)",
+  "description": "The derived, structured form of a client's raw intake (resume + intake form, spec section 2.1) -- NOT the raw upload itself. One file per client. This is the single reference point used both by the qualification gate (against job-posting.schema.json) and by the resume-tailoring engine. Modeled on JSON Resume's basics/work/skills shape, extended with tagging and gate-facing fields JSON Resume doesn't have.",
+  "type": "object",
+  "required": [
+    "client_id",
+    "schema_version",
+    "basics",
+    "skills",
+    "work_history",
+    "qualification_bar",
+    "screening_answers",
+    "exclusions",
+    "consent"
+  ],
+  "properties": {
+
+    "client_id": { "type": "string", "description": "Slug, e.g. 'jane-doe-2026'. Foreign key used by the application-tracking sheet (spec section 3) and by job-match records." },
+    "schema_version": { "type": "string", "const": "1.0" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "status": { "type": "string", "enum": ["intake_pending", "active", "paused", "landed", "cancelled"] },
+
+    "basics": {
+      "type": "object",
+      "description": "Static header data (JSON Resume 'basics') plus target-role parameters used as gate input.",
+      "required": ["name", "email", "target_job_titles", "target_locations", "salary_floor", "work_authorization"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "city": { "type": "string" },
+            "region": { "type": "string" },
+            "country": { "type": "string" }
+          }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "url"],
+            "properties": {
+              "label": { "type": "string", "description": "e.g. 'linkedin', 'portfolio', 'github'" },
+              "url": { "type": "string", "format": "uri" }
+            }
+          }
+        },
+        "target_job_titles": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "target_locations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "city": { "type": "string" },
+              "region": { "type": "string" },
+              "country": { "type": "string" },
+              "remote_ok": { "$ref": "shared-defs.schema.json#/$defs/remotePolicy" }
+            }
+          }
+        },
+        "salary_floor": { "$ref": "shared-defs.schema.json#/$defs/money", "description": "Below-floor comparison against job-posting.salary is a direct gate check." },
+        "work_authorization": {
+          "type": "object",
+          "required": ["status", "sponsorship_needed"],
+          "properties": {
+            "status": { "type": "string", "enum": ["citizen", "permanent_resident", "visa_holder", "requires_sponsorship", "other"] },
+            "authorized_countries": { "type": "array", "items": { "type": "string" } },
+            "sponsorship_needed": { "type": "boolean" },
+            "visa_type": { "type": "string" }
+          }
+        },
+        "notice_period_days": { "type": "integer" }
+      }
+    },
+
+    "skills": {
+      "type": "array",
+      "description": "Full skills/experience inventory. Every entry's skill_id is the join key the gate and the tailoring engine both key off of.",
+      "items": {
+        "allOf": [
+          { "$ref": "shared-defs.schema.json#/$defs/skillRef" },
+          {
+            "type": "object",
+            "required": ["skill_id", "category", "years_experience"],
+            "properties": {
+              "category": { "$ref": "shared-defs.schema.json#/$defs/skillCategory" },
+              "years_experience": { "type": "number", "minimum": 0 },
+              "proficiency": { "type": "string", "enum": ["beginner", "intermediate", "advanced", "expert"] },
+              "last_used": { "type": "string", "description": "YYYY or YYYY-MM -- lets the gate/tailoring engine down-weight stale skills." },
+              "certification_details": {
+                "type": "object",
+                "properties": {
+                  "issuer": { "type": "string" },
+                  "date_earned": { "type": "string", "format": "date" },
+                  "expires": { "type": "string", "format": "date" },
+                  "credential_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    "work_history": {
+      "type": "array",
+      "description": "JSON Resume 'work' shape, extended: bullets are individually tagged so they can be selected/recombined per application rather than locked to one resume layout (spec 2.2).",
+      "items": {
+        "type": "object",
+        "required": ["entry_id", "company", "title", "start_date", "bullets"],
+        "properties": {
+          "entry_id": { "type": "string" },
+          "company": { "type": "string" },
+          "title": { "type": "string" },
+          "location": { "type": "string" },
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": { "$ref": "shared-defs.schema.json#/$defs/dateOrPresent" },
+          "employment_type": { "type": "string", "enum": ["full_time", "part_time", "contract", "internship", "freelance"] },
+          "bullets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["bullet_id", "entry_id", "text", "skill_tags"],
+              "properties": {
+                "bullet_id": { "type": "string" },
+                "entry_id": { "type": "string", "description": "Must equal the parent work_history entry's entry_id -- same field name as the parent's own key, not a new synonym. Denormalized on purpose: the tailoring engine flattens bullets across a client's whole history to score against a job's requirements, then needs this FK to re-group the selected bullets back under the right role without carrying nesting context through that pass." },
+                "text": { "type": "string", "description": "The canonical, truthful, fully-composed sentence -- required and authoritative even when the structured fields below are also present." },
+                "action_verb": { "type": "string", "description": "Optional decomposition, e.g. 'Facilitated'. Populate alongside task/method/metric_or_result when a bullet needs to support template-substitution rewording (see resume/tailoring-template.md §3) rather than open-ended regeneration. Not required -- decompose opportunistically during intake, text remains the fallback." },
+                "task": { "type": "string", "description": "Optional decomposition, e.g. 'daily team coordination meetings'." },
+                "method": { "type": "string", "description": "Optional decomposition, e.g. 'structured agile ceremonies'." },
+                "metric_or_result": { "type": "string", "description": "Optional decomposition, e.g. '6-person engineering team, reduced sprint slippage ~15%'. Same concept as impact_metric below; kept as a separate field here because the decomposed form is consumed differently (template slot) than the standalone impact_metric (display-only callout)." },
+                "skill_tags": {
+                  "type": "array",
+                  "items": { "type": "string", "description": "skill_id, must match an entry in skills[]" },
+                  "description": "Which skills this bullet demonstrates -- the tailoring engine filters/ranks bullets by overlap with a job's required + nice-to-have skill_ids. Also licenses which of the job posting's own terms may be substituted in during rewording (see resume/tailoring-template.md §3 rewording envelope: a term may only be borrowed from the posting if a skill_tag here already truthfully supports it)."
+                },
+                "theme_tags": { "type": "array", "items": { "type": "string" }, "description": "Free-form themes not tied to the skill taxonomy, e.g. 'leadership', 'cost_savings'." },
+                "impact_metric": { "type": "string", "description": "e.g. '$2M saved', '40% faster' -- optional, surfaced when present." },
+                "strength": { "type": "string", "enum": ["primary", "secondary"], "description": "Tailoring priority when multiple bullets compete for limited resume space." }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "institution": { "type": "string" },
+          "degree": { "type": "string" },
+          "field_of_study": { "type": "string" },
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": { "$ref": "shared-defs.schema.json#/$defs/dateOrPresent" }
+        }
+      }
+    },
+
+    "qualification_bar": {
+      "type": "object",
+      "description": "The client-side input to the qualification gate (spec 2.2, 2.4). Deliberately NOT a duplicate skill list -- must_have/nice_to_have reference skill_ids already defined in skills[] above, flagging which of the client's own skills are strong/core vs supplementary. The gate compares these against job-posting.requirements / nice_to_have_skills.",
+      "required": ["must_have_skill_ids", "nice_to_have_skill_ids", "target_seniority"],
+      "properties": {
+        "must_have_skill_ids": { "type": "array", "items": { "type": "string" }, "description": "skill_ids the client is confident/strong in -- a job requiring these should score as a strong match." },
+        "nice_to_have_skill_ids": { "type": "array", "items": { "type": "string" } },
+        "target_seniority": { "$ref": "shared-defs.schema.json#/$defs/seniorityLevel" },
+        "gate_strictness": { "type": "string", "enum": ["strict", "standard", "lenient"], "description": "Operator-tunable knob for subcon_qualgate's rubric; default 'standard'." }
+      }
+    },
+
+    "screening_answers": {
+      "type": "array",
+      "description": "Reusable answer bank (spec 2.2). Matched against job-posting.screening_questions[] by question_category.",
+      "items": {
+        "type": "object",
+        "required": ["question_category", "answer"],
+        "properties": {
+          "question_category": { "$ref": "shared-defs.schema.json#/$defs/questionCategory" },
+          "question_text_template": { "type": "string", "description": "Generic phrasing this answer was written for, for operator reference only." },
+          "answer": { "type": "string" },
+          "adaptable": { "type": "boolean", "description": "Whether the tailoring step may reword this per job, or must use it verbatim." },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+
+    "exclusions": {
+      "type": "object",
+      "description": "Feeds the gate alongside skills (spec 2.2). Checked against job-posting.company / job-posting.red_flags.",
+      "required": ["dealbreakers"],
+      "properties": {
+        "excluded_companies": { "type": "array", "items": { "type": "string" } },
+        "excluded_industries": { "type": "array", "items": { "type": "string" } },
+        "required_remote_policy": { "$ref": "shared-defs.schema.json#/$defs/remotePolicy" },
+        "dealbreakers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["category"],
+            "properties": {
+              "category": { "$ref": "shared-defs.schema.json#/$defs/exclusionCategory" },
+              "detail": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "consent": {
+      "type": "object",
+      "description": "Spec 2.9 -- required before the operator applies on the client's behalf.",
+      "required": ["authorized_at", "document_version", "accurate_info_confirmed"],
+      "properties": {
+        "authorized_at": { "type": "string", "format": "date-time" },
+        "document_version": { "type": "string" },
+        "accurate_info_confirmed": { "type": "boolean" },
+        "signature_method": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

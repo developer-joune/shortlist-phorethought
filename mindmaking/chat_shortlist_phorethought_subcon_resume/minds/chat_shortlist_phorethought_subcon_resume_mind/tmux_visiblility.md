@@ -1,0 +1,1 @@
+tmux attach -t chat_shortlist_phorethought_subcon_resume_mind

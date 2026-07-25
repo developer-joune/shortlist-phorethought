@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shortlist.phorethought.local/schemas/shared-defs.schema.json",
+  "title": "Shortlist Shared Definitions",
+  "description": "Enums and reusable types shared between client-profile.schema.json and job-posting.schema.json. Both schemas $ref into this file for any field the qualification gate must compare by value (skills, remote policy, exclusion/red-flag categories, screening-question categories). Keeping one copy of each enum is what makes those comparisons a plain set operation instead of fuzzy text matching.",
+  "$defs": {
+
+    "skillRef": {
+      "type": "object",
+      "description": "A pointer into the shared skill taxonomy (see skills-taxonomy.md), not an inline skill definition. skill_id is the join key the qualification gate uses to compare a client's skills against a job's requirements. Never duplicate skill metadata (category, aliases) here -- that lives once in the taxonomy.",
+      "required": ["skill_id"],
+      "properties": {
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Canonical slug from the shared skill taxonomy, e.g. 'react', 'project-management', 'aws-certified-solutions-architect'."
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable label, denormalized for convenience only. skill_id is authoritative for matching."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "skillCategory": {
+      "type": "string",
+      "enum": ["hard_skill", "tool_or_software", "certification", "soft_skill", "language"]
+    },
+
+    "remotePolicy": {
+      "type": "string",
+      "description": "Shared vocabulary for a job's actual policy (job-posting.location.remote_policy) and a client's requirement (client-profile.basics.target_locations[].remote_ok / exclusions.required_remote_policy).",
+      "enum": ["remote", "hybrid", "onsite", "no_preference", "unspecified"]
+    },
+
+    "money": {
+      "type": "object",
+      "required": ["currency"],
+      "properties": {
+        "min": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$", "description": "ISO 4217, e.g. USD." },
+        "period": { "type": "string", "enum": ["year", "hour"] }
+      },
+      "additionalProperties": false
+    },
+
+    "exclusionCategory": {
+      "type": "string",
+      "description": "Shared by client-profile.exclusions.dealbreakers[].category and job-posting.red_flags[].category so a red flag can be checked against a client's exclusion list by exact category match, not keyword search.",
+      "enum": [
+        "company_name",
+        "industry",
+        "remote_policy",
+        "travel_requirement",
+        "weekend_or_oncall_work",
+        "company_size",
+        "visa_sponsorship_unavailable",
+        "salary_below_floor",
+        "other"
+      ]
+    },
+
+    "questionCategory": {
+      "type": "string",
+      "description": "Shared by client-profile.screening_answers[].question_category and job-posting.screening_questions[].question_category so a posting's questions can be auto-matched to the client's answer bank.",
+      "enum": [
+        "work_authorization",
+        "relocation_willingness",
+        "salary_expectation",
+        "notice_period",
+        "why_this_role",
+        "remote_preference",
+        "availability_start_date",
+        "background_check",
+        "education_verification",
+        "custom"
+      ]
+    },
+
+    "seniorityLevel": {
+      "type": "string",
+      "enum": ["entry", "mid", "senior", "staff", "principal", "exec", "unspecified"]
+    },
+
+    "dateOrPresent": {
+      "oneOf": [
+        { "type": "string", "format": "date" },
+        { "const": "present" }
+      ]
+    }
+  }
+}

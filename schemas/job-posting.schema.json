@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shortlist.phorethought.local/schemas/job-posting.schema.json",
+  "title": "Shortlist Job Posting (Normalized)",
+  "description": "Normalizes one raw job posting into fields directly comparable against client-profile.schema.json (spec 2.3). This is an immutable snapshot of the posting at scrape time -- NOT the per-application tracking record (job title/company/link/status/resume-version-used, spec section 3), which is a separate, mutable file keyed by (client_id, job_id).",
+  "type": "object",
+  "required": ["job_id", "source_url", "company", "title", "requirements", "location"],
+  "properties": {
+
+    "job_id": { "type": "string", "description": "Foreign key referenced by the per-client application-tracking record." },
+    "source_url": { "type": "string", "format": "uri", "description": "The direct apply-link (spec 2.6)." },
+    "source_platform": { "type": "string", "enum": ["linkedin", "indeed", "company_site", "greenhouse", "lever", "workday", "other"] },
+    "date_posted": { "type": "string", "format": "date" },
+    "date_scraped": { "type": "string", "format": "date-time" },
+
+    "company": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "description": "Checked directly against client-profile.exclusions.excluded_companies." },
+        "industry": { "type": "string", "description": "Checked against client-profile.exclusions.excluded_industries." },
+        "size": { "type": "string", "enum": ["startup", "small", "mid", "large", "enterprise", "unknown"] },
+        "company_url": { "type": "string", "format": "uri" }
+      }
+    },
+
+    "title": { "type": "string" },
+    "seniority_level": { "$ref": "shared-defs.schema.json#/$defs/seniorityLevel", "description": "Compared against client-profile.qualification_bar.target_seniority." },
+
+    "requirements": {
+      "type": "object",
+      "description": "Hard gate criteria. must_have_skills uses the same skillRef shape as client-profile.skills[] so the gate can intersect skill_ids directly.",
+      "required": ["must_have_skills"],
+      "properties": {
+        "must_have_skills": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              { "$ref": "shared-defs.schema.json#/$defs/skillRef" },
+              {
+                "type": "object",
+                "properties": {
+                  "min_years": { "type": "number", "minimum": 0, "description": "Compared against the matching entry's years_experience in client-profile.skills[]." }
+                }
+              }
+            ]
+          }
+        },
+        "min_years_total_experience": { "type": "number", "minimum": 0 },
+        "required_education": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["none", "associate", "bachelor", "master", "phd"] },
+            "field": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "nice_to_have_skills": {
+      "type": "array",
+      "items": { "$ref": "shared-defs.schema.json#/$defs/skillRef" },
+      "description": "Same skillRef shape -- compared against both client-profile.skills[] (for scoring) and qualification_bar.nice_to_have_skill_ids (for boosting)."
+    },
+
+    "location": {
+      "type": "object",
+      "required": ["remote_policy"],
+      "properties": {
+        "city": { "type": "string" },
+        "region": { "type": "string" },
+        "country": { "type": "string" },
+        "remote_policy": { "$ref": "shared-defs.schema.json#/$defs/remotePolicy" },
+        "hybrid_days_in_office": { "type": "integer" },
+        "relocation_offered": { "type": "boolean" },
+        "travel_requirement_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "salary": {
+      "type": "object",
+      "description": "Absent entirely if not listed in the posting -- do not default to zero, that would read as a false 'below floor' gate failure.",
+      "allOf": [{ "$ref": "shared-defs.schema.json#/$defs/money" }]
+    },
+
+    "screening_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question_text", "question_category"],
+        "properties": {
+          "question_text": { "type": "string" },
+          "question_category": { "$ref": "shared-defs.schema.json#/$defs/questionCategory" },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+
+    "red_flags": {
+      "type": "array",
+      "description": "Checked against client-profile.exclusions.dealbreakers[] by exact category match.",
+      "items": {
+        "type": "object",
+        "required": ["category", "severity"],
+        "properties": {
+          "category": { "$ref": "shared-defs.schema.json#/$defs/exclusionCategory" },
+          "detail": { "type": "string" },
+          "severity": { "type": "string", "enum": ["hard_exclude", "caution"] }
+        }
+      }
+    },
+
+    "raw_description_text": { "type": "string", "description": "Full posting text, kept for operator reference/audit -- not consumed by the gate directly." }
+  },
+  "additionalProperties": false
+}

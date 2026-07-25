@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shortlist.phorethought.local/schemas/application-tracking.schema.json",
+  "title": "Shortlist Application-Tracking Record",
+  "description": "Closes spec section 3's open tracking-format question, per Window 2's decision: per-client JSON files, not a spreadsheet. One record per (client_id, job_id) pair -- the mutable operational record of a single application's lifecycle, distinct from client-profile.schema.json (the client, stable) and job-posting.schema.json (the posting, an immutable snapshot). This is where those two get joined by outcome: qualification_result, resume version used, and status history.",
+  "type": "object",
+  "required": ["tracking_id", "client_id", "job_id", "job_title", "company", "apply_link", "qualification_result", "status", "status_history"],
+  "properties": {
+
+    "tracking_id": { "type": "string", "description": "e.g. '{client_id}__{job_id}'." },
+    "client_id": { "type": "string", "description": "FK into client-profile.schema.json." },
+    "job_id": { "type": "string", "description": "FK into job-posting.schema.json." },
+
+    "job_title": { "type": "string", "description": "Denormalized snapshot of job-posting.title at match time -- the posting file may be re-scraped/updated later; this record should reflect what the client was actually evaluated and applied against." },
+    "company": { "type": "string", "description": "Denormalized snapshot of job-posting.company.name." },
+    "apply_link": { "type": "string", "format": "uri", "description": "Denormalized snapshot of job-posting.source_url (spec 2.6)." },
+
+    "qualification_result": {
+      "type": "object",
+      "description": "The gate's output for this (client, job) pair, shaped to carry subcon_qualgate's rubric v1 sec4 full audit trail -- subcon_qualgate owns the scoring logic and the meaning of each hard gate / sub-score, this schema just fixes the shape it's recorded in. hard_gates[].family and sub_scores[].name are deliberately free strings, not enums: that vocabulary belongs to the rubric doc, not this schema, and enumerating it here would recouple this file to every future rubric revision (same reasoning as keeping the skill taxonomy out of shared-defs.schema.json).",
+      "required": ["band", "hard_gates", "sub_scores", "total_score", "rubric_version", "evaluated_at"],
+      "properties": {
+        "band": { "type": "string", "enum": ["qualified", "borderline", "reject"], "description": "3-way outcome -- authoritative, supersedes any boolean pass/fail." },
+        "hard_gates": {
+          "type": "array",
+          "description": "Which hard gates were checked and their pass/fail, per rubric Family A/B.",
+          "items": {
+            "type": "object",
+            "required": ["family", "gate_name", "passed"],
+            "properties": {
+              "family": { "type": "string", "description": "e.g. 'A', 'B' -- as named by the rubric, not fixed here." },
+              "gate_name": { "type": "string" },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "sub_scores": {
+          "type": "array",
+          "description": "The rubric's weighted sub-scores (v1: 6 of them) that roll up into total_score.",
+          "items": {
+            "type": "object",
+            "required": ["name", "weight", "score"],
+            "properties": {
+              "name": { "type": "string" },
+              "weight": { "type": "number" },
+              "score": { "type": "number" }
+            }
+          }
+        },
+        "total_score": { "type": "number" },
+        "reason": {
+          "type": "object",
+          "description": "Auto-generated explanation, split by outcome rather than one generic string.",
+          "properties": {
+            "pass_reason": { "type": ["string", "null"], "description": "Populated when band is qualified (and optionally for the qualified side of a borderline case)." },
+            "reject_reason": { "type": ["string", "null"], "description": "Populated when band is reject (and optionally for the concerning side of a borderline case)." }
+          }
+        },
+        "operator_override": {
+          "type": "object",
+          "description": "Only meaningful when band is borderline -- the operator's manual resolution before the application can proceed either way.",
+          "required": ["overridden"],
+          "properties": {
+            "overridden": { "type": "boolean" },
+            "overridden_band": { "type": "string", "enum": ["qualified", "reject"], "description": "The operator's final call -- never 'borderline' again, this closes the decision out." },
+            "override_reason": { "type": "string" },
+            "overridden_by": { "type": "string" },
+            "overridden_at": { "type": "string", "format": "date-time" }
+          },
+          "if": { "properties": { "overridden": { "const": true } } },
+          "then": { "required": ["overridden_band", "override_reason", "overridden_at"] }
+        },
+        "rubric_version": { "type": "string", "description": "Which version of subcon_qualgate's rubric produced this result, for auditability as the rubric evolves." },
+        "notes": { "type": "string", "description": "Free-text operator/gate notes (spec section 3), separate from the structured pass/reject reasons above." },
+        "evaluated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "resume_version_used": { "type": "string", "description": "Filename per resume/tailoring-template.md's naming convention: FirstName_LastName_JobTitle_Resume.pdf. Null/absent until an application is actually drafted." },
+
+    "portal_account": {
+      "type": "object",
+      "description": "Employer-specific portal account creation, now in scope: the operator creates accounts on job platforms as needed while applying. HARD CONSTRAINT: never store a raw password/credential value anywhere in this object or this file -- these are local JSON files, not a secrets store. There is deliberately no field here that could hold one; credential_reference points to wherever the operator's password manager actually keeps it. additionalProperties: false below blocks any ad-hoc field (e.g. a stray 'password' key) from being added later.",
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["not_required", "pending", "created", "existing_reused"], "description": "Richer than a plain boolean: distinguishes 'no portal needed' from 'needs one, not done yet' from 'account exists' (newly created vs. an account the operator already had)." },
+        "platform_name": { "type": "string", "description": "e.g. 'Workday', 'Greenhouse', or the company's own portal name." },
+        "account_email": { "type": "string", "format": "email", "description": "The email/username used to register -- an identifier, not a secret, safe to store here." },
+        "credential_reference": { "type": "string", "description": "Pointer to where the actual credential lives externally, e.g. \"1Password: ShortlistOps/Workday-AcmeCorp\". Never the credential itself -- coordinate the exact phrasing convention with subcon_legal's consent-doc language if they've already fixed one." },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "if": { "properties": { "status": { "enum": ["created", "existing_reused"] } } },
+      "then": { "required": ["credential_reference"] },
+      "additionalProperties": false
+    },
+
+    "screening_answers_used": {
+      "type": "array",
+      "description": "Snapshot of the drafted answers actually submitted for this application (spec 2.6), pulled/adapted from client-profile.screening_answers[] at draft time -- kept here rather than re-derived later so the record reflects what was truthfully submitted, even if the client's answer bank changes afterward.",
+      "items": {
+        "type": "object",
+        "required": ["question_category", "answer_text"],
+        "properties": {
+          "question_category": { "$ref": "shared-defs.schema.json#/$defs/questionCategory" },
+          "answer_text": { "type": "string" }
+        }
+      }
+    },
+
+    "status": {
+      "type": "string",
+      "description": "Current state -- also the field spec 2.8's client-facing feed will read from. borderline_review sits between the two gate outcomes: qualification_result.band === 'borderline' lands here until operator_override resolves it to gated_pass or gated_fail.",
+      "enum": ["gated_pass", "borderline_review", "gated_fail", "drafted", "applied", "response_received", "interview", "offer", "rejected", "withdrawn"]
+    },
+
+    "date_applied": { "type": ["string", "null"], "format": "date", "description": "Null until the operator manually submits (spec 2.7)." },
+
+    "status_history": {
+      "type": "array",
+      "description": "Append-only log of status transitions -- the raw material for spec 2.8's 'live' feed/status-tracker UI (step-tracker per subcon_ui) without needing a real dashboard backend.",
+      "items": {
+        "type": "object",
+        "required": ["status", "changed_at"],
+        "properties": {
+          "status": { "type": "string" },
+          "changed_at": { "type": "string", "format": "date-time" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+
+    "operator_notes": { "type": "string", "description": "Free-text, operator-facing only -- not shown in any client-facing feed." }
+  },
+  "additionalProperties": false
+}

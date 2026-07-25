@@ -1,0 +1,46 @@
+{
+  "_comment": "Controlled vocabulary for skill_id, referenced by client-profile.schema.json (skills[], work_history[].bullets[].skill_tags, qualification_bar) and job-posting.schema.json (requirements.must_have_skills, nice_to_have_skills) via shared-defs.schema.json#/$defs/skillRef. Not a JSON Schema enum on purpose -- this list grows as real clients/postings come in, and re-editing two schema files per new skill isn't sustainable. Append new entries here instead; run lint-skills-taxonomy.py after editing. category must be one of shared-defs.schema.json#/$defs/skillCategory.",
+  "version": "1.0",
+  "updated_at": "2026-07-25",
+  "note": "Starter set only -- spans common white-collar categories since the beachhead niche (spec section 10, open question) isn't picked yet. Extend per-client/per-posting as real data comes in; don't try to pre-populate exhaustively.",
+  "skills": [
+    { "skill_id": "project-management", "display_name": "Project Management", "category": "hard_skill", "aliases": ["pm"] },
+    { "skill_id": "data-analysis", "display_name": "Data Analysis", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "financial-modeling", "display_name": "Financial Modeling", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "copywriting", "display_name": "Copywriting", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "seo", "display_name": "SEO", "category": "hard_skill", "aliases": ["search-engine-optimization"] },
+    { "skill_id": "sales", "display_name": "Sales", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "recruiting", "display_name": "Recruiting", "category": "hard_skill", "aliases": ["talent-acquisition"] },
+    { "skill_id": "accounting", "display_name": "Accounting", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "ux-design", "display_name": "UX Design", "category": "hard_skill", "aliases": ["user-experience-design"] },
+    { "skill_id": "graphic-design", "display_name": "Graphic Design", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "growth-marketing", "display_name": "Growth Marketing", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "scrum", "display_name": "Scrum", "category": "hard_skill", "aliases": ["agile-facilitation"] },
+    { "skill_id": "team-leadership", "display_name": "Team Leadership", "category": "hard_skill", "aliases": [] },
+
+    { "skill_id": "excel", "display_name": "Excel", "category": "tool_or_software", "aliases": ["ms-excel", "microsoft-excel"] },
+    { "skill_id": "salesforce", "display_name": "Salesforce", "category": "tool_or_software", "aliases": [] },
+    { "skill_id": "hubspot", "display_name": "HubSpot", "category": "tool_or_software", "aliases": [] },
+    { "skill_id": "google-analytics", "display_name": "Google Analytics", "category": "tool_or_software", "aliases": ["ga4"] },
+    { "skill_id": "figma", "display_name": "Figma", "category": "tool_or_software", "aliases": [] },
+    { "skill_id": "jira", "display_name": "Jira", "category": "tool_or_software", "aliases": [] },
+    { "skill_id": "quickbooks", "display_name": "QuickBooks", "category": "tool_or_software", "aliases": [] },
+    { "skill_id": "tableau", "display_name": "Tableau", "category": "tool_or_software", "aliases": [] },
+    { "skill_id": "powerpoint", "display_name": "PowerPoint", "category": "tool_or_software", "aliases": ["ms-powerpoint"] },
+    { "skill_id": "sql", "display_name": "SQL", "category": "tool_or_software", "aliases": [] },
+
+    { "skill_id": "pmp", "display_name": "Project Management Professional (PMP)", "category": "certification", "aliases": ["project-management-professional"] },
+    { "skill_id": "aws-certified-solutions-architect", "display_name": "AWS Certified Solutions Architect", "category": "certification", "aliases": [] },
+    { "skill_id": "cpa", "display_name": "Certified Public Accountant (CPA)", "category": "certification", "aliases": ["certified-public-accountant"] },
+    { "skill_id": "six-sigma-green-belt", "display_name": "Six Sigma Green Belt", "category": "certification", "aliases": [] },
+    { "skill_id": "shrm-cp", "display_name": "SHRM Certified Professional (SHRM-CP)", "category": "certification", "aliases": [] },
+
+    { "skill_id": "cross-functional-collaboration", "display_name": "Cross-Functional Collaboration", "category": "soft_skill", "aliases": [] },
+    { "skill_id": "client-communication", "display_name": "Client Communication", "category": "soft_skill", "aliases": [] },
+    { "skill_id": "negotiation", "display_name": "Negotiation", "category": "soft_skill", "aliases": [] },
+
+    { "skill_id": "spanish", "display_name": "Spanish", "category": "language", "aliases": [] },
+    { "skill_id": "mandarin", "display_name": "Mandarin", "category": "language", "aliases": ["chinese-mandarin"] },
+    { "skill_id": "french", "display_name": "French", "category": "language", "aliases": [] }
+  ]
+}
