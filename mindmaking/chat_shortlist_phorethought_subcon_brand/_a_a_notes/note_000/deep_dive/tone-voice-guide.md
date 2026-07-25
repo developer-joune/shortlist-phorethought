@@ -137,11 +137,14 @@ Example: `pass_reason_components` = `[{years_experience_healthcare_analytics, 10
 combo line up directly with what they listed as must-haves." (This is the
 §6 worked example — it's exactly this contract applied.)
 
-Edge case: if a job clears the overall gate but `pass_reason_components`
-comes back empty (no component individually ≥80%, gate passed on aggregate
-instead), don't leave the line blank or fall back to a generic compliment —
-flag that case back to subcon_qualgate, since the voice rule in §2 (specific,
-not generic) depends on there being at least one strong component to name.
+Edge case: qualgate's selection logic guarantees `pass_reason_components` is
+never empty for a qualified band (falls back to the single highest-scoring
+component if nothing clears 80%), so this shouldn't occur in practice.
+Still — if a job clears the overall gate but the list ever does come back
+empty, don't leave the line blank or fall back to a generic compliment;
+route it back to subcon_qualgate rather than silently degrading, since the
+voice rule in §2 (specific, not generic) depends on there being at least
+one strong component to name.
 
 ---
 

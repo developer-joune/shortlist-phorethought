@@ -17,6 +17,7 @@
     { "skill_id": "growth-marketing", "display_name": "Growth Marketing", "category": "hard_skill", "aliases": [] },
     { "skill_id": "scrum", "display_name": "Scrum", "category": "hard_skill", "aliases": ["agile-facilitation"] },
     { "skill_id": "team-leadership", "display_name": "Team Leadership", "category": "hard_skill", "aliases": [] },
+    { "skill_id": "healthcare-analytics", "display_name": "Healthcare Analytics", "category": "hard_skill", "aliases": ["healthcare-data-analytics"] },
 
     { "skill_id": "excel", "display_name": "Excel", "category": "tool_or_software", "aliases": ["ms-excel", "microsoft-excel"] },
     { "skill_id": "salesforce", "display_name": "Salesforce", "category": "tool_or_software", "aliases": [] },
