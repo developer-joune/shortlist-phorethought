@@ -1,0 +1,52 @@
+{
+  "job_id": "meridian-health-senior-data-analyst-2026",
+  "source_url": "https://example.com/careers/meridian-health/senior-data-analyst",
+  "source_platform": "company_site",
+  "date_posted": "2026-07-10",
+  "date_scraped": "2026-07-25T09:00:00Z",
+
+  "company": {
+    "name": "Meridian Health",
+    "industry": "Healthcare",
+    "size": "large",
+    "company_url": "https://meridianhealth.example.com"
+  },
+
+  "title": "Senior Data Analyst",
+  "seniority_level": "senior",
+
+  "requirements": {
+    "must_have_skills": [
+      { "skill_id": "sql", "display_name": "SQL", "min_years": 4 },
+      { "skill_id": "tableau", "display_name": "Tableau", "min_years": 3 },
+      { "skill_id": "healthcare-analytics", "display_name": "Healthcare Data Analytics", "min_years": 4 }
+    ],
+    "min_years_total_experience": 5,
+    "required_education": { "level": "bachelor" }
+  },
+
+  "nice_to_have_skills": [
+    { "skill_id": "project-management", "display_name": "Project Management" },
+    { "skill_id": "financial-modeling", "display_name": "Financial Modeling" }
+  ],
+
+  "location": {
+    "city": "Chicago",
+    "region": "IL",
+    "country": "USA",
+    "remote_policy": "hybrid",
+    "hybrid_days_in_office": 2
+  },
+
+  "salary": { "min": 95000, "max": 115000, "currency": "USD", "period": "year" },
+
+  "screening_questions": [
+    { "question_text": "Are you legally authorized to work in the U.S. without sponsorship?", "question_category": "work_authorization", "required": true },
+    { "question_text": "What are your salary expectations?", "question_category": "salary_expectation", "required": true },
+    { "question_text": "Why are you interested in this role?", "question_category": "why_this_role", "required": false }
+  ],
+
+  "red_flags": [],
+
+  "raw_description_text": "Meridian Health is seeking a Senior Data Analyst to join our clinical operations analytics team, building dashboards and reporting that directly inform patient-care decisions. 5+ years of relevant analytics experience preferred."
+}

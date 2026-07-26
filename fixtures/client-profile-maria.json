@@ -1,0 +1,137 @@
+{
+  "client_id": "maria-torres-2026",
+  "schema_version": "1.0",
+  "created_at": "2026-06-01T00:00:00Z",
+  "updated_at": "2026-07-25T00:00:00Z",
+  "status": "active",
+
+  "basics": {
+    "name": "Maria Torres",
+    "email": "maria.torres@example.com",
+    "phone": "312-555-0142",
+    "location": { "city": "Chicago", "region": "IL", "country": "USA" },
+    "links": [{ "label": "linkedin", "url": "https://linkedin.com/in/mariatorres" }],
+    "target_job_titles": ["Senior Data Analyst", "Data Analyst", "Healthcare Data Analyst"],
+    "target_locations": [
+      { "city": "Chicago", "region": "IL", "country": "USA", "remote_ok": "no_preference" },
+      { "remote_ok": "remote" }
+    ],
+    "salary_floor": { "min": 100000, "currency": "USD", "period": "year" },
+    "work_authorization": { "status": "citizen", "sponsorship_needed": false },
+    "notice_period_days": 14
+  },
+
+  "skills": [
+    { "skill_id": "healthcare-analytics", "display_name": "Healthcare Analytics", "category": "hard_skill", "years_experience": 5, "proficiency": "advanced", "last_used": "2026" },
+    { "skill_id": "sql", "display_name": "SQL", "category": "tool_or_software", "years_experience": 6, "proficiency": "advanced", "last_used": "2026" },
+    { "skill_id": "tableau", "display_name": "Tableau", "category": "tool_or_software", "years_experience": 2, "proficiency": "intermediate", "last_used": "2026" },
+    { "skill_id": "data-analysis", "display_name": "Data Analysis", "category": "hard_skill", "years_experience": 6, "proficiency": "expert", "last_used": "2026" },
+    { "skill_id": "project-management", "display_name": "Project Management", "category": "hard_skill", "years_experience": 3, "proficiency": "intermediate", "last_used": "2025" },
+    { "skill_id": "financial-modeling", "display_name": "Financial Modeling", "category": "hard_skill", "years_experience": 2, "proficiency": "intermediate", "last_used": "2021" }
+  ],
+
+  "work_history": [
+    {
+      "entry_id": "entry_001",
+      "company": "Lakeside Health Network",
+      "title": "Data Analyst II",
+      "location": "Chicago, IL",
+      "start_date": "2021-03-01",
+      "end_date": "present",
+      "employment_type": "full_time",
+      "bullets": [
+        {
+          "bullet_id": "b001",
+          "entry_id": "entry_001",
+          "text": "Built and maintained SQL-based reporting dashboards in Tableau for hospital readmission tracking, cutting manual report prep time about 6 hours per week for clinical operations leadership.",
+          "action_verb": "Built and maintained",
+          "task": "{{skill:tableau}} reporting dashboards built on {{skill:sql}} for hospital readmission tracking",
+          "method": "automated weekly refresh pipelines",
+          "metric_or_result": "cutting manual report prep time ~6 hours/week for clinical operations leadership",
+          "skill_tags": ["sql", "tableau", "healthcare-analytics"],
+          "theme_tags": ["healthcare", "reporting-automation"],
+          "impact_metric": "~6 hours/week saved",
+          "strength": "primary"
+        },
+        {
+          "bullet_id": "b002",
+          "entry_id": "entry_001",
+          "text": "Led a cross-functional project standardizing claims data definitions across three hospital systems.",
+          "skill_tags": ["healthcare-analytics", "project-management", "cross-functional-collaboration"],
+          "theme_tags": ["healthcare", "standardization"],
+          "strength": "secondary"
+        },
+        {
+          "bullet_id": "b003",
+          "entry_id": "entry_001",
+          "text": "Presented monthly analytics summaries to department directors using Excel and Tableau.",
+          "skill_tags": ["tableau", "excel"],
+          "theme_tags": ["reporting-automation"],
+          "strength": "secondary"
+        }
+      ]
+    },
+    {
+      "entry_id": "entry_002",
+      "company": "Bright Path Analytics",
+      "title": "Junior Data Analyst",
+      "location": "Chicago, IL",
+      "start_date": "2019-06-01",
+      "end_date": "2021-02-28",
+      "employment_type": "full_time",
+      "bullets": [
+        {
+          "bullet_id": "b004",
+          "entry_id": "entry_002",
+          "text": "Built Excel-based financial models to support quarterly budget forecasting for department leads.",
+          "skill_tags": ["financial-modeling", "data-analysis"],
+          "theme_tags": ["forecasting"],
+          "strength": "secondary"
+        },
+        {
+          "bullet_id": "b005",
+          "entry_id": "entry_002",
+          "text": "Cleaned and validated survey datasets ahead of quarterly analysis cycles.",
+          "skill_tags": ["data-analysis"],
+          "theme_tags": ["data-quality"],
+          "strength": "secondary"
+        }
+      ]
+    }
+  ],
+
+  "education": [
+    { "institution": "University of Illinois at Chicago", "degree": "B.S.", "field_of_study": "Statistics", "start_date": "2015-08-01", "end_date": "2019-05-01" }
+  ],
+
+  "qualification_bar": {
+    "must_have_skill_ids": ["sql", "tableau", "healthcare-analytics", "data-analysis"],
+    "nice_to_have_skill_ids": ["project-management"],
+    "target_seniority": "mid",
+    "gate_strictness": "standard"
+  },
+
+  "screening_answers": [
+    { "question_category": "work_authorization", "answer": "I am a U.S. citizen and do not require sponsorship.", "adaptable": false },
+    { "question_category": "relocation_willingness", "answer": "Not open to relocation; open to remote or Chicago-based roles.", "adaptable": true },
+    { "question_category": "salary_expectation", "answer": "My target range is $100,000-$120,000 depending on total compensation.", "adaptable": true },
+    { "question_category": "notice_period", "answer": "Two weeks.", "adaptable": false },
+    { "question_category": "why_this_role", "answer": "I'm drawn to roles where healthcare data work directly improves patient outcomes.", "adaptable": true }
+  ],
+
+  "exclusions": {
+    "excluded_companies": [],
+    "excluded_industries": ["Tobacco"],
+    "required_remote_policy": "no_preference",
+    "dealbreakers": [
+      { "category": "weekend_or_oncall_work", "detail": "Not available for weekend or on-call rotations." }
+    ]
+  },
+
+  "consent": {
+    "authorized_at": "2026-06-01T00:00:00Z",
+    "document_version": "1.0",
+    "accurate_info_confirmed": true,
+    "signature_method": "typed_name"
+  }
+}

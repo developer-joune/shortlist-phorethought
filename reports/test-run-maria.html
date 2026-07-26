@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortlist Engine — Test Run: Maria Torres</title>
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --border: #e2ddd2;
+    --text: #211d17;
+    --text-muted: #6b6455;
+    --accent: #c07830;
+    --pass: #2f7d4f;
+    --fail: #b3432b;
+    --code-bg: #f1ede3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16140f;
+      --surface: #201d17;
+      --border: #3a352a;
+      --text: #f0ece1;
+      --text-muted: #b3ab98;
+      --accent: #e0a85e;
+      --pass: #6bc496;
+      --fail: #e2836a;
+      --code-bg: #2a251c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; }
+  h2 { font-size: 19px; margin: 40px 0 4px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 15px; margin: 20px 0 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin: 16px 0; }
+  .band {
+    display: inline-block; font-weight: 700; font-size: 13px; letter-spacing: 0.04em;
+    padding: 3px 10px; border-radius: 999px; text-transform: uppercase;
+  }
+  .band.qualified { background: rgba(47,125,79,0.15); color: var(--pass); }
+  .band.reject { background: rgba(179,67,43,0.15); color: var(--fail); }
+  .meta-line { color: var(--text-muted); font-size: 14px; margin: 4px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+  .gate-pass { color: var(--pass); font-weight: 600; }
+  .gate-fail { color: var(--fail); font-weight: 600; }
+  .reason-box {
+    background: var(--code-bg); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding: 10px 14px; font-size: 14px; margin: 12px 0;
+  }
+  pre {
+    background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto;
+    font-size: 13px; line-height: 1.55; white-space: pre-wrap;
+  }
+  .bullet-tier { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); margin-right: 6px; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  footer { color: var(--text-muted); font-size: 12px; margin-top: 48px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Shortlist Engine — Test Run</h1>
+<p class="subtitle">Real output from <code>node run-application.js</code>, client fixture: Maria Torres (<code>fixtures/client-profile-maria.json</code>). Two job postings run against the same client to exercise both a qualifying and a hard-gate-rejected outcome.</p>
+
+<h2>Case 1 — Meridian Health, Senior Data Analyst <span class="band qualified">Qualified</span></h2>
+
+<div class="card">
+  <p class="meta-line"><strong>Client:</strong> Maria Torres</p>
+  <p class="meta-line"><strong>Job:</strong> Senior Data Analyst — Meridian Health</p>
+  <p class="meta-line"><strong>Score:</strong> 89.9 / 100</p>
+
+  <h3>Hard gates</h3>
+  <table>
+    <tr><th>Result</th><th>Family</th><th>Gate</th></tr>
+    <tr><td class="gate-pass">PASS</td><td>A</td><td>excluded_company_or_industry</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>A</td><td>location_remote_violation</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>A</td><td>schedule_dealbreaker</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>A</td><td>salary_below_floor</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>work_authorization</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>required_certification_missing</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>required_skill_missing</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>years_of_experience</td></tr>
+  </table>
+
+  <h3>Sub-scores</h3>
+  <table>
+    <tr><th>Component</th><th>Score</th><th>% of max</th></tr>
+    <tr><td>required_skills_coverage</td><td>35.6 / 40</td><td>89%</td></tr>
+    <tr><td>nice_to_have_coverage</td><td>20 / 20</td><td>100%</td></tr>
+    <tr><td>seniority_fit</td><td>11.3 / 15</td><td>75.3%</td></tr>
+    <tr><td>location_remote_fit</td><td>10 / 10</td><td>100%</td></tr>
+    <tr><td>compensation_fit</td><td>8 / 10</td><td>80%</td></tr>
+    <tr><td>screening_compatibility</td><td>5 / 5</td><td>100%</td></tr>
+  </table>
+
+  <h3>Pass reason (client-facing data source)</h3>
+  <div class="reason-box">Strong match on nice-to-have skills (100%) and location/remote fit (100%).</div>
+  <p class="meta-line">Note: three components tied at 100% (nice-to-have, location, screening) — the algorithm takes the top 2 by %-of-max in original component order, so this run surfaces nice-to-have + location rather than screening. Required-skills coverage (89%) still clears the ≥80% pass-copy filter but didn't win the top-2 tie here — a real, observed edge case in the tie-break rule, not a bug.</p>
+
+  <h3>Tailored resume (actual output)</h3>
+  <pre>Maria Torres
+maria.torres@example.com | 312-555-0142 | Chicago, IL
+linkedin: https://linkedin.com/in/mariatorres
+
+SUMMARY
+7.2+ years as a Data Analyst II with proven strength in SQL, Healthcare Analytics, and
+Tableau. Background centered on healthcare and reporting automation. Seeking to bring
+this to a Senior Data Analyst role.
+
+SKILLS
+Core Match: SQL, Healthcare Analytics, Tableau
+SQL, Healthcare Analytics, Tableau, Project Management, Financial Modeling, Data Analysis
+
+PROFESSIONAL EXPERIENCE
+Data Analyst II — Lakeside Health Network (2021-03-01 to present)
+  <span class="bullet-tier">[Tier A]</span>Built and maintained Tableau reporting dashboards built on SQL for hospital
+  readmission tracking, cutting manual report prep time ~6 hours/week for clinical
+  operations leadership.
+  <span class="bullet-tier">[Tier B]</span>Led a cross-functional project standardizing claims data definitions across
+  three hospital systems.
+  <span class="bullet-tier">[Tier B]</span>Presented monthly analytics summaries to department directors using Excel
+  and Tableau.
+
+Junior Data Analyst — Bright Path Analytics (2019-06-01 to 2021-02-28)
+  <span class="bullet-tier">[Tier B]</span>Built Excel-based financial models to support quarterly budget forecasting
+  for department leads.
+  <span class="bullet-tier">[Tier B]</span>Cleaned and validated survey datasets ahead of quarterly analysis cycles.
+
+EDUCATION
+B.S., Statistics — University of Illinois at Chicago</pre>
+  <p class="meta-line">[Tier A] = rendered from decomposed bullet fields with job-terminology substitution licensed by <code>skill_tags</code>. [Tier B] = verbatim source text, no rewording. Both tiers are live in this one output.</p>
+
+  <h3>Drafted screening answers (actual output)</h3>
+  <pre>Q: Are you legally authorized to work in the U.S. without sponsorship?
+A: I am a U.S. citizen and do not require sponsorship.
+
+Q: What are your salary expectations?
+A: My target range is $100,000-$120,000 depending on total compensation.
+
+Q: Why are you interested in this role?
+A: I'm drawn to roles where healthcare data work directly improves patient outcomes.</pre>
+  <p class="meta-line">Suggested filename: <code>Maria_Torres_Senior_Data_Analyst_Resume.pdf</code></p>
+</div>
+
+<h2>Case 2 — Northgate Retail, Store Manager <span class="band reject">Reject</span></h2>
+
+<div class="card">
+  <p class="meta-line"><strong>Client:</strong> Maria Torres (same profile, different job)</p>
+  <p class="meta-line"><strong>Job:</strong> Store Manager — Northgate Retail Co.</p>
+  <p class="meta-line">No score computed — a hard-gate failure short-circuits scoring entirely, per the rubric.</p>
+
+  <h3>Hard gates</h3>
+  <table>
+    <tr><th>Result</th><th>Family</th><th>Gate</th><th>Detail</th></tr>
+    <tr><td class="gate-pass">PASS</td><td>A</td><td>excluded_company_or_industry</td><td>—</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>A</td><td>location_remote_violation</td><td>—</td></tr>
+    <tr><td class="gate-fail">FAIL</td><td>A</td><td>schedule_dealbreaker</td><td>Job requires weekend/on-call work, which the client excluded: Not available for weekend or on-call rotations.</td></tr>
+    <tr><td class="gate-fail">FAIL</td><td>A</td><td>salary_below_floor</td><td>Posting's max (55000) is below the client's floor (100000).</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>work_authorization</td><td>—</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>required_certification_missing</td><td>—</td></tr>
+    <tr><td class="gate-fail">FAIL</td><td>B</td><td>required_skill_missing</td><td>Posting requires Sales, which the client's profile does not show at all.</td></tr>
+    <tr><td class="gate-pass">PASS</td><td>B</td><td>years_of_experience</td><td>—</td></tr>
+  </table>
+
+  <h3>Reject reason (internal, audit-facing)</h3>
+  <div class="reason-box">Hard gate failed: schedule_dealbreaker — Job requires weekend/on-call work, which the client excluded: Not available for weekend or on-call rotations.</div>
+  <p class="meta-line">Three gates failed simultaneously here (schedule, salary, required-skill) — all are recorded for audit even though the reason string surfaces the first one encountered, per the rubric's "named hard-gate failure takes priority" rule. No resume is tailored for a rejected job.</p>
+</div>
+
+<footer>
+  Generated from an actual <code>node run-application.js</code> run against <code>engine/qualification-gate.js</code> + <code>engine/resume-tailoring.js</code>, implementing subcon_qualgate's rubric v1.1 and subcon_resume's tailoring template v1. Not a mockup — every number and string above is real engine output, transcribed as-is.
+</footer>
+
+</main>
+</body>
+</html>

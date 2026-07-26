@@ -1,0 +1,41 @@
+{
+  "job_id": "northgate-retail-store-manager-2026",
+  "source_url": "https://example.com/careers/northgate-retail/store-manager",
+  "source_platform": "other",
+  "date_posted": "2026-07-15",
+  "date_scraped": "2026-07-25T09:05:00Z",
+
+  "company": {
+    "name": "Northgate Retail Co.",
+    "industry": "Retail",
+    "size": "mid",
+    "company_url": "https://northgateretail.example.com"
+  },
+
+  "title": "Store Manager",
+  "seniority_level": "mid",
+
+  "requirements": {
+    "must_have_skills": [
+      { "skill_id": "sales", "display_name": "Sales", "min_years": 3 },
+      { "skill_id": "team-leadership", "display_name": "Team Leadership", "min_years": 2 }
+    ],
+    "min_years_total_experience": 3
+  },
+
+  "nice_to_have_skills": [],
+
+  "location": { "city": "Chicago", "region": "IL", "country": "USA", "remote_policy": "onsite" },
+
+  "salary": { "min": 48000, "max": 55000, "currency": "USD", "period": "year" },
+
+  "screening_questions": [
+    { "question_text": "Are you available to work weekends and holidays?", "question_category": "custom", "required": true }
+  ],
+
+  "red_flags": [
+    { "category": "weekend_or_oncall_work", "detail": "Retail schedule requires regular weekend and holiday shifts.", "severity": "hard_exclude" }
+  ],
+
+  "raw_description_text": "Northgate Retail Co. is hiring a Store Manager to lead day-to-day operations at our Chicago location. Weekend and holiday availability required."
+}
