@@ -288,7 +288,9 @@ function scoreApplication(clientProfile, jobPosting, options = {}) {
       total_score: null,
       reason: { pass_reason: reason.pass_reason, reject_reason: reason.reject_reason },
       pass_reason_components: reason.pass_reason_components,
-      operator_override: { overridden: false },
+      // No borderline_resolution field: hard-gate rejects never reach operator
+      // review at all (qualgate rubric sec8 precondition), and the field's
+      // presence -- not a boolean -- is what marks a decision as made.
       rubric_version: RUBRIC_VERSION,
       notes: '',
       evaluated_at: evaluatedAt,
@@ -307,7 +309,9 @@ function scoreApplication(clientProfile, jobPosting, options = {}) {
     total_score: total,
     reason: { pass_reason: reason.pass_reason, reject_reason: reason.reject_reason },
     pass_reason_components: reason.pass_reason_components,
-    operator_override: { overridden: false },
+    // borderline_resolution is added later, by the operator-review UI, once
+    // a human decides -- its presence (not a boolean) marks the decision as
+    // made, so it's correctly absent from a fresh scoring result.
     rubric_version: RUBRIC_VERSION,
     notes: '',
     evaluated_at: evaluatedAt,

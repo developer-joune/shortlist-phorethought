@@ -285,3 +285,95 @@ discovering it three weeks into a subscription.
 - Where does this live relative to intake (§2.1 of the spec)? Proposal: run it as the
   last step of intake, after the abstraction layer (§2.2) is built from the raw resume,
   since the volume-check sample needs the structured skills inventory to run against.
+
+---
+
+## 8. Operator review workflow — the borderline band, spec'd for subcon_ui
+
+Requested by Window 2 on behalf of subcon_ui, who's designing the operator-facing
+review interface. This is a direct extension of §3's borderline band, not new logic —
+answering what a human needs in front of them, what they're actually deciding, and what
+must get logged.
+
+**Precondition, so the UI scope is clear:** the operator only ever sees this screen for
+jobs that (a) passed all Stage-1 hard gates, and (b) scored 55–74 total. Hard-gate
+failures are auto-rejected with no operator step at all — there is nothing to review
+there, the reason is already fully determined. This screen is purely for the "passed
+every hard requirement, but the weighted match is middling" case.
+
+### 8.1 What information the operator needs on screen
+
+In priority order (top of screen = fastest path to a decision):
+
+1. **Header**: job title @ company, total score with band label (e.g. "68/100 —
+   Borderline"), location/remote policy.
+2. **The auto-generated borderline reason** (§4's reject/borderline reason: the two
+   lowest %-of-max components) — surfaced first, since it's the fastest answer to "why
+   is this borderline" and the natural anchor for the operator's read.
+3. **Full 6-component sub-score breakdown** — all 6, not just the two flagged ones, each
+   shown as raw/max and %-of-max (e.g. "Required-skills coverage: 28/40 — 70%"). The
+   operator needs the whole picture, not just the auto-picked weak points, in case a
+   component the rubric didn't flag is actually the one that matters to their judgment
+   of this specific case.
+4. **Hard-gate results, confirmed-passed** — a compact strip listing each of the 8 gates
+   and what value was checked (e.g. "Salary floor: posting $85–95K vs. floor $80K —
+   OK"), even though none failed. This matters for trust/audit ("show your work") and
+   because a gate that passed narrowly (e.g. years-of-experience just inside the 0.6×
+   tolerance) is relevant context even when it's not disqualifying.
+5. **The normalized job posting** — required skills, nice-to-have skills, salary range
+   if listed, screening questions — so the operator can sanity-check the score against
+   the actual posting, not just trust the numbers (normalization/parsing can be wrong).
+6. **The client's relevant profile slice** — matched skills with years (mapped against
+   the posting's required/nice-to-have lists), seniority/years total, salary floor,
+   remote/location preference, exclusion list. Shown alongside the posting for direct
+   comparison, not just referenced by score.
+
+Not required for v1, flagged as a possible v2 addition: surfacing the operator's past
+decisions on similar borderline jobs for this client, in service of the rubric's own
+"applied consistently every time" goal. Skipping it for now to stay inside the 3-day
+build scope — worth revisiting once there's enough decision history to make it useful.
+
+### 8.2 The decision itself
+
+Exactly two valid outcomes. No "snooze"/defer state in v1 — a borderline job must be
+resolved into one of these two before the operator moves on, to avoid an
+indefinitely-growing pending backlog:
+
+- **Promote to Qualified** — operator overrides the "no default action" of the
+  borderline band and treats the job as a pass. It re-enters the normal qualified
+  pipeline (tailoring, apply-link) and, per §4, a **pass-style reason** (highest
+  %-of-max components, ≥80% filter) is generated at this moment for subcon_brand's
+  card copy — it didn't exist before promotion since the job never cleared 75 on its
+  own.
+- **Confirm Reject** — operator agrees the borderline score should resolve to
+  not-qualified. The existing auto-generated reject reason (already computed, shown in
+  8.1.2) stands as-is; nothing new needs generating.
+
+Note on terminology: earlier drafts called the logged field an "override reason,"
+which implied disagreement with a default. That's imprecise — the borderline band has
+no score-implied default action (unlike pass/reject, where the score itself implies the
+outcome), so *every* borderline resolution is a first-instance human judgment call, not
+a disagreement with something. Renaming the field accordingly below.
+
+### 8.3 What gets logged on decision (required fields)
+
+- `operator_decision`: enum, `promoted_qualified` | `confirmed_reject`
+- `operator_reason`: **required free text**, for both outcomes, not just promotions —
+  the submit action should be blocked client-side until this is filled in. This is the
+  single most important audit field for the borderline band, since it's the only place
+  the rubric's own logic doesn't already supply a reason.
+- `decided_at`: timestamp
+- `decided_by`: operator identifier — trivial with one operator in Phase 1, but the
+  field should exist now so it's not a schema migration later when a VA or Phase-2
+  automation starts making some of these calls
+- `score_snapshot`: the total + all 6 sub-scores as they were at decision time, frozen
+  — if rubric weights change later, historical borderline decisions must stay
+  explainable against the score that actually produced them, not get silently
+  reinterpreted
+- If promoted: the newly-generated `pass_reason_components` (per §4's data contract)
+- If rejected: no new fields — the existing reject-reason components already logged at
+  scoring time are sufficient
+
+This keeps the same audit standard §4 set for automatic pass/reject: nothing here
+should be resolvable by looking at the UI alone months later — the log has to carry the
+full "why," including the human part.

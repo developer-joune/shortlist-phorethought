@@ -57,19 +57,36 @@
             "reject_reason": { "type": ["string", "null"], "description": "Populated when band is reject (and optionally for the concerning side of a borderline case)." }
           }
         },
-        "operator_override": {
+        "borderline_resolution": {
           "type": "object",
-          "description": "Only meaningful when band is borderline -- the operator's manual resolution before the application can proceed either way.",
-          "required": ["overridden"],
+          "description": "Per subcon_qualgate's rubric v1 sec8 operator-review workflow. Only present once a borderline band has actually been resolved -- absent, not a false/pending flag, while it's still awaiting operator review. Renamed from operator_override / overridden_band: 'override' implied disagreeing with a default outcome, but a borderline band has no default to override -- every resolution is a first-instance judgment call, so there's no longer an 'overridden: true/false' toggle, just presence-or-absence of a completed decision.",
+          "required": ["operator_decision", "operator_reason", "decided_at", "score_snapshot"],
           "properties": {
-            "overridden": { "type": "boolean" },
-            "overridden_band": { "type": "string", "enum": ["qualified", "reject"], "description": "The operator's final call -- never 'borderline' again, this closes the decision out." },
-            "override_reason": { "type": "string" },
-            "overridden_by": { "type": "string" },
-            "overridden_at": { "type": "string", "format": "date-time" }
-          },
-          "if": { "properties": { "overridden": { "const": true } } },
-          "then": { "required": ["overridden_band", "override_reason", "overridden_at"] }
+            "operator_decision": { "type": "string", "enum": ["promoted_qualified", "confirmed_reject"], "description": "The operator's final call -- never 'borderline' again, this closes the decision out." },
+            "operator_reason": { "type": "string", "description": "Unconditionally required (renamed from override_reason) -- since there's no default being overridden, every resolution needs its own stated reasoning, not just the ones that deviate from something." },
+            "decided_at": { "type": "string", "format": "date-time" },
+            "decided_by": { "type": "string" },
+            "score_snapshot": {
+              "type": "object",
+              "description": "Freezes the rubric's scores at decision time so this historical decision stays explainable even if rubric weights change later. Same shape as qualification_result.sub_scores/total_score above -- keep both in sync if that shape changes.",
+              "required": ["total_score", "sub_scores"],
+              "properties": {
+                "total_score": { "type": "number" },
+                "sub_scores": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "weight", "score"],
+                    "properties": {
+                      "name": { "type": "string" },
+                      "weight": { "type": "number" },
+                      "score": { "type": "number" }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "rubric_version": { "type": "string", "description": "Which version of subcon_qualgate's rubric produced this result, for auditability as the rubric evolves." },
         "notes": { "type": "string", "description": "Free-text operator/gate notes (spec section 3), separate from the structured pass/reject reasons above." },

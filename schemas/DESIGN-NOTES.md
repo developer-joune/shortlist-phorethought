@@ -123,6 +123,29 @@ that vocabulary is subcon_qualgate's rubric, not this schema's, and hardcoding i
 recouple this file to every future rubric revision. Same principle as keeping the skill
 taxonomy out of `shared-defs.schema.json`.
 
+## operator_override renamed to borderline_resolution, per qualgate rubric v1 sec8 (2026-07-25)
+
+Rubric's operator-review workflow spec changed the shape and the framing: `overridden` (bool) +
+`overridden_band` are gone, replaced by `operator_decision`
+(`promoted_qualified`/`confirmed_reject`), `override_reason` → `operator_reason` (now
+unconditionally required, not conditional on an `overridden` flag), `overridden_at`/
+`overridden_by` → `decided_at`/`decided_by`, and a new required `score_snapshot`
+(`total_score` + frozen `sub_scores[]` at decision time, so the decision stays explainable if
+rubric weights change later -- same shape as `qualification_result.sub_scores`, kept manually
+in sync since it's a small, twice-used fragment not worth a separate indirection for).
+
+Reasoning (qualgate's, relayed via Window 2): "override" implied disagreeing with a default
+outcome, but a borderline band has no default -- every resolution is a first-instance judgment
+call. That reasoning applies to the container object too, not just the field, so renamed
+`operator_override` → `borderline_resolution` and dropped the boolean toggle entirely: the
+object is now simply **absent** while a borderline case awaits review, and **fully present**
+(all fields required together, no `if`/`then` needed anymore) once decided. Simpler than the
+previous conditional-requirement shape, and matches the workflow more literally.
+
+Verified against a real validator (not just re-reading the new spec): pending case
+(`borderline_resolution` absent) validates clean; fully-populated case validates clean;
+missing `operator_reason` alone is rejected; missing `score_snapshot` alone is rejected.
+
 ## Bug fix: allOf + closed skillRef was structurally unsatisfiable (caught by Window 2 building against these schemas)
 
 `client-profile.skills[]` items and `job-posting.requirements.must_have_skills[]` items both

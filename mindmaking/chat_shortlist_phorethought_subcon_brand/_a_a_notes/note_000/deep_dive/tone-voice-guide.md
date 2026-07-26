@@ -254,6 +254,14 @@ reads like ad copy, not a person updating a client.
   — that guidance from before still holds, and fits naturally with this
   plainer internal-docs register anyway. No request received yet — not
   started.
+- **Anticipated:** landing-page wireframe (pending operator sign-off) will
+  include a pricing-teaser section that touches the 25-application
+  guarantee/risk-reversal language from the business brief ("if we can't
+  find 25 jobs you're genuinely qualified for, you don't pay"). That
+  section routes through subcon_legal before it ships — not just a normal
+  voice pass from here — Window 2 has already told legal to expect it.
+  Rest of the landing page is normal brand-voice territory (§2 pillars
+  apply as usual). Nothing to do yet — wireframe hasn't cleared review.
 - **Resolved:** subcon_qualgate's pass-side reason fix landed —
   `pass_reason_components` now returns an ordered, ≥80%-filtered list of
   strong-match components instead of the lowest-scoring ones. §4 has been
