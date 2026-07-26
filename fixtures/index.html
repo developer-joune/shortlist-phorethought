@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortlist — fixtures</title>
+<link rel="stylesheet" href="../assets/shell.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-wordmark" href="../index.html">Shortlist</a>
+    <nav class="site-nav" aria-label="Site">
+      <a href="../index.html">Home</a>
+      <a href="../design/feed-prototype-v1.html">Feed</a>
+      <a href="../schemas/">Schemas</a>
+      <a href="../legal/">Legal</a>
+      <a href="../resume/">Resume</a>
+      <a href="../engine/">Engine</a>
+      <a href="../reports/">Reports</a>
+      <a href="../fixtures/" aria-current="page">Fixtures</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <p class="page-eyebrow">Fixtures</p>
+  <h1>Test data</h1>
+  <p class="page-intro">
+    Sample client and job-posting data, shaped to the schemas, used to exercise the engine and
+    produce the example in <a href="../reports/">Reports</a>. Fictional — not a real client.
+  </p>
+
+  <div class="card-grid">
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="client-profile-maria.json">client-profile-maria.json</a></h3>
+        <span class="status-chip">Test fixture</span>
+      </div>
+      <p class="file-card-desc">
+        A fictional client profile (Maria Torres, healthcare data analyst) shaped to
+        <code>client-profile.schema.json</code>, used to exercise the engine end to end.
+      </p>
+      <a class="file-card-link" href="client-profile-maria.json">View the fixture →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="job-posting-meridian-health.json">job-posting-meridian-health.json</a></h3>
+        <span class="status-chip">Test fixture</span>
+      </div>
+      <p class="file-card-desc">
+        A fictional, strong-match job posting used alongside Maria's profile to test a
+        qualifying result through the gate.
+      </p>
+      <a class="file-card-link" href="job-posting-meridian-health.json">View the fixture →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="job-posting-northgate-retail.json">job-posting-northgate-retail.json</a></h3>
+        <span class="status-chip">Test fixture</span>
+      </div>
+      <p class="file-card-desc">
+        A fictional, mismatched job posting (retail store manager) used to test a rejecting
+        result through the gate.
+      </p>
+      <a class="file-card-link" href="job-posting-northgate-retail.json">View the fixture →</a>
+    </article>
+
+  </div>
+</main>
+
+</body>
+</html>

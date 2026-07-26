@@ -43,7 +43,8 @@
                   "min_years": { "type": "number", "minimum": 0, "description": "Compared against the matching entry's years_experience in client-profile.skills[]." }
                 }
               }
-            ]
+            ],
+            "unevaluatedProperties": false
           }
         },
         "min_years_total_experience": { "type": "number", "minimum": 0 },

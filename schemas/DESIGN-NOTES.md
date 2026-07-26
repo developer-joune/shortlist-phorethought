@@ -123,6 +123,53 @@ that vocabulary is subcon_qualgate's rubric, not this schema's, and hardcoding i
 recouple this file to every future rubric revision. Same principle as keeping the skill
 taxonomy out of `shared-defs.schema.json`.
 
+## Bug fix: allOf + closed skillRef was structurally unsatisfiable (caught by Window 2 building against these schemas)
+
+`client-profile.skills[]` items and `job-posting.requirements.must_have_skills[]` items both
+composed `skillRef` via `allOf` alongside a sibling subschema requiring `category`/
+`years_experience` (or `min_years`). `skillRef` itself carried `additionalProperties: false`
+with only `skill_id`/`display_name` declared. Under `allOf` semantics each branch is checked
+against the *whole* instance independently -- so the `skillRef` branch would always reject any
+instance that satisfied the sibling branch's extra required properties. No instance could ever
+satisfy both branches at once. A validator that doesn't run strict JSON Schema (Window 2's
+engine code) wouldn't hit this, but any real validator (ajv, python `jsonschema`, a future CI
+check) would reject every realistic skill entry.
+
+Fix: removed `additionalProperties: false` from `skillRef` in `shared-defs.schema.json` --
+it's a reusable fragment meant to be composed, not a final closed shape -- and added
+`unevaluatedProperties: false` as a sibling of `allOf` at both composition sites (the correct
+2020-12 pattern: `unevaluatedProperties` accounts for properties declared in *any* `allOf`
+branch, unlike `additionalProperties` which only sees its own branch). Verified against a real
+validator (python `jsonschema` 4.25.1, not just re-reading the spec): realistic full skill
+entries now validate cleanly on both schemas, and a genuinely bogus extra field is still
+correctly rejected on both.
+
+## Bug fix: dateOrPresent's oneOf rejected the literal value it exists to allow (caught by Window 2)
+
+`dateOrPresent` was `oneOf [{type: string, format: date}, {const: "present"}]`. `format` is
+annotation-only by default -- most validators (including python `jsonschema` without an
+explicit `FormatChecker`, which is the common case) don't assert it, they just record it. So
+with no `FormatChecker`, `{type: string, format: date}` matches *any* string, including
+`"present"` -- meaning `"present"` satisfied both `oneOf` branches at once, and `oneOf` (exactly
+one match required) rejected it. This hit ordinary, intended use of the schema
+(`work_history[].end_date: "present"` for a current role).
+
+Fix: added `pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"` to the date branch (matching the full
+`YYYY-MM-DD` convention `start_date`/`end_date` already use elsewhere -- not the `YYYY`/
+`YYYY-MM` shorthand `skills[].last_used` uses, that's a different field with a different
+grain). `pattern` is always asserted regardless of validator configuration, so the date vs.
+`"present"` branches are now mutually exclusive independent of whether a consumer remembers to
+enable format assertions. Kept `format: "date"` alongside it as an informational annotation
+only -- harmless, and still useful to editors/tools that read it, just no longer load-bearing.
+
+Verified with a real validator across both `FormatChecker` configurations (disabled/default and
+explicitly enabled): `"present"` and real dates (`"2021-03-01"`) now accept consistently in
+both; malformed strings (`"not-a-date"`, a full timestamp) reject in both. One residual, expected
+difference: `"2021-13-45"` (right shape, not a real calendar date) only gets caught with
+`FormatChecker` enabled -- `pattern` is shape-only by design, and that was never what this bug
+was about; full calendar-validity checking remains opt-in via `format`, as everywhere else
+`format` is used in these schemas.
+
 ## Employer-portal account creation (scope addition, 2026-07-25)
 
 Operator now creates employer-specific portal accounts as needed while applying (previously

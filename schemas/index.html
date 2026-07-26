@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortlist — schemas</title>
+<link rel="stylesheet" href="../assets/shell.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-wordmark" href="../index.html">Shortlist</a>
+    <nav class="site-nav" aria-label="Site">
+      <a href="../index.html">Home</a>
+      <a href="../design/feed-prototype-v1.html">Feed</a>
+      <a href="../schemas/" aria-current="page">Schemas</a>
+      <a href="../legal/">Legal</a>
+      <a href="../resume/">Resume</a>
+      <a href="../engine/">Engine</a>
+      <a href="../reports/">Reports</a>
+      <a href="../fixtures/">Fixtures</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <p class="page-eyebrow">Schemas</p>
+  <h1>The data the engine runs on</h1>
+  <p class="page-intro">
+    How a client's intake becomes comparable to a job posting, and how an application's status
+    gets tracked over time. These are working schemas for the engine — not client-facing
+    documents — kept here so the qualification gate compares real structured values instead of
+    guessing at text.
+  </p>
+
+  <div class="card-grid">
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="DESIGN-NOTES.md">DESIGN-NOTES.md</a></h3>
+        <span class="status-chip">Reference — design rationale</span>
+      </div>
+      <p class="file-card-desc">
+        Why the four schemas below are shaped the way they are, the conventions they follow
+        (JSON Resume, JSON Schema 2020-12), and the open questions still being resolved with
+        the qualification-gate and resume-tailoring work.
+      </p>
+      <a class="file-card-link" href="DESIGN-NOTES.md">Read the notes →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="shared-defs.schema.json">shared-defs.schema.json</a></h3>
+        <span class="status-chip">Complete</span>
+      </div>
+      <p class="file-card-desc">
+        The shared vocabulary — skills, remote policy, salary, seniority — that the client and
+        job-posting schemas both reference, so a client's profile and a job's requirements can
+        be compared directly instead of fuzzy-matched.
+      </p>
+      <a class="file-card-link" href="shared-defs.schema.json">View the schema →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="client-profile.schema.json">client-profile.schema.json</a></h3>
+        <span class="status-chip">Complete</span>
+      </div>
+      <p class="file-card-desc">
+        The structured form of a client's intake — skills, work history, qualification bar,
+        exclusions, screening answers — derived from their resume and intake form. One file per
+        client.
+      </p>
+      <a class="file-card-link" href="client-profile.schema.json">View the schema →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="job-posting.schema.json">job-posting.schema.json</a></h3>
+        <span class="status-chip">Complete</span>
+      </div>
+      <p class="file-card-desc">
+        A normalized snapshot of one scraped job posting, shaped to compare directly against a
+        client profile. Immutable at scrape time.
+      </p>
+      <a class="file-card-link" href="job-posting.schema.json">View the schema →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="application-tracking.schema.json">application-tracking.schema.json</a></h3>
+        <span class="status-chip">Complete</span>
+      </div>
+      <p class="file-card-desc">
+        The per-application tracking record — qualification result, status history, resume
+        version used — one file per client/job pair. This is what the client feed's status
+        indicator reads from.
+      </p>
+      <a class="file-card-link" href="application-tracking.schema.json">View the schema →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="skills-taxonomy.json">skills-taxonomy.json</a></h3>
+        <span class="status-chip">Living — starter set</span>
+      </div>
+      <p class="file-card-desc">
+        The controlled vocabulary of skill IDs both schemas reference. A 34-skill starter set
+        spanning common white-collar categories; grows as real clients and postings come in.
+      </p>
+      <a class="file-card-link" href="skills-taxonomy.json">View the taxonomy →</a>
+    </article>
+
+    <article class="file-card">
+      <div class="file-card-header">
+        <h3 class="file-card-title"><a href="lint-skills-taxonomy.py">lint-skills-taxonomy.py</a></h3>
+        <span class="status-chip">Tooling</span>
+      </div>
+      <p class="file-card-desc">
+        Checks the skills taxonomy for duplicate IDs, alias collisions, and invalid categories.
+        Run after any edit: <code>python3 lint-skills-taxonomy.py</code>.
+      </p>
+      <a class="file-card-link" href="lint-skills-taxonomy.py">View the script →</a>
+    </article>
+
+  </div>
+</main>
+
+</body>
+</html>

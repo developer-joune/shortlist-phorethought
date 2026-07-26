@@ -7,7 +7,7 @@
 
     "skillRef": {
       "type": "object",
-      "description": "A pointer into the shared skill taxonomy (see skills-taxonomy.md), not an inline skill definition. skill_id is the join key the qualification gate uses to compare a client's skills against a job's requirements. Never duplicate skill metadata (category, aliases) here -- that lives once in the taxonomy.",
+      "description": "A pointer into the shared skill taxonomy (see skills-taxonomy.md), not an inline skill definition. skill_id is the join key the qualification gate uses to compare a client's skills against a job's requirements. Never duplicate skill metadata (category, aliases) here -- that lives once in the taxonomy. No additionalProperties:false here on purpose: skillRef is a reusable fragment meant to be composed via allOf with sibling properties (category, years_experience, min_years, etc.) in client-profile.schema.json and job-posting.schema.json. Closing it here would make it impossible for any instance to satisfy both this branch's closed properties list and an allOf sibling adding more properties at the same time -- each allOf subschema is checked against the whole instance independently, so the two would always contradict each other. Composition sites that need a closed shape use unevaluatedProperties: false alongside their allOf instead.",
       "required": ["skill_id"],
       "properties": {
         "skill_id": {
@@ -19,8 +19,7 @@
           "type": "string",
           "description": "Human-readable label, denormalized for convenience only. skill_id is authoritative for matching."
         }
-      },
-      "additionalProperties": false
+      }
     },
 
     "skillCategory": {
@@ -85,8 +84,9 @@
     },
 
     "dateOrPresent": {
+      "description": "pattern (not just format:date) does the real enforcement here on purpose: format is annotation-only unless a validator explicitly opts into a FormatChecker, so without pattern the 'present' branch's const also trivially satisfies the format:date branch (any string does, since format isn't asserted), turning this oneOf's exclusivity into a false rejection of the literal value 'present' the schema exists to allow. format:date is kept as an informational annotation only -- pattern is what actually gates.",
       "oneOf": [
-        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
         { "const": "present" }
       ]
     }
