@@ -75,13 +75,6 @@ tech-choice doc + implementation pass, after this is reviewed).
 └──────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────┐
-│ SOCIAL PROOF                    [CONTENT GAP — flagged     │
-│                                  below, not designed as if  │
-│                                  it exists yet]             │
-│   [testimonial placeholder] [testimonial placeholder]        │
-└──────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────────────┐
 │ PRICING TEASER                  [promise-language-         │
 │                                   sensitive — see note      │
 │                                   below]                    │
@@ -124,11 +117,9 @@ tech-choice doc + implementation pass, after this is reviewed).
 
 ## Flags — content gaps and coordination needed (not blocking the wireframe review, but before build)
 
-1. **Social proof section has no real content yet** — no client testimonials exist (per
-   `legal/promise-language-review.md`, no client-facing copy exists beyond the source brief).
-   Options: launch without this section, launch with a placeholder ("early clients — check back
-   soon"), or hold the whole page until at least one testimonial exists. Flagging for Window 2 /
-   operator to decide — not assuming an answer.
+1. ~~Social proof section~~ — **resolved (operator-confirmed): cut entirely for v1**, no
+   placeholder testimonials. Revisit once real client results exist. Removed from the section
+   order above.
 2. **Pricing teaser touches the 25-application guarantee directly** — `legal/refund-policy.md`
    and `legal/promise-language-review.md` are explicit that any marketing use of that guarantee
    must carry its precise terms (qualified + billing-period + per-client scoping), not a

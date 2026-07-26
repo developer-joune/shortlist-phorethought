@@ -246,17 +246,6 @@ a { color: var(--accent-text); }
   margin-bottom: 40px;
 }
 
-.highlight-card.placeholder {
-  border: 1px dashed var(--border);
-  border-left: 3px dashed var(--border);
-  background: transparent;
-}
-
-.highlight-card.placeholder h2,
-.highlight-card.placeholder p {
-  color: var(--text-secondary);
-}
-
 /* ---- root overview: "Internal Build Reference" section cards ----
    Deliberately toned down relative to .section-card above -- smaller,
    flatter, no accent hover -- so this area reads as secondary/reference,

@@ -21,7 +21,7 @@ specific item — kept deliberately minimal, flagged for confirmation)
 │──────────────────────────────────────────────────────────│
 │ Job @ Company            Client        Score    Flagged     │
 │──────────────────────────────────────────────────────────│
-│ Senior DA @ Meridian     Maria T.       68/100   3d ago  →   │
+│ Senior DA @ Meridian     Maria T.       66/100   3d ago  →   │
 │ BI Analyst @ Norwell     Maria T.       61/100   1d ago  →   │
 │ PM @ Ferro Group         James K.       59/100   5d ago  →   │
 │ Ops Lead @ Stackline     James K.       72/100   2h ago  →   │
