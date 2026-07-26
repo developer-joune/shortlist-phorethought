@@ -237,16 +237,23 @@ reads like ad copy, not a person updating a client.
 - Visual system (color, type, card chrome) is Window 2 / a design pass, not
   covered here — this doc is voice/copy only, per spec §6's explicit note
   that visual direction is a suggested starting point, not finalized.
-- **Anticipated:** subcon_ui is adding a site shell (`schemas/`, `legal/`,
-  `resume/`, `engine/`, `reports/`, root index) reusing the feed's visual
-  language. Expect a request for plain-language descriptions of each
-  section/doc plus status labels (e.g. "draft, not attorney-reviewed" for
-  legal docs). Same voice pillars apply here — personal-but-accurate, no
-  overselling internal/technical content; a status label like "draft, not
-  attorney-reviewed" should stay exactly that blunt rather than being
-  softened, since understating a doc's review status is the more dangerous
-  failure mode than sounding slightly clinical in this one spot. No request
-  received yet — not started.
+- **Anticipated, with a framing update:** subcon_ui is adding a site shell
+  (`schemas/`, `legal/`, `resume/`, `engine/`, `reports/`, root index)
+  reusing the feed's visual language. **Recalibration from Window 2:**
+  "the website" = the client feed (and eventually the marketing landing
+  page) only — that's "the product," and gets the full voice pillars in
+  this guide. The internal-docs sections (schemas/legal/engine/reports)
+  are operator-only reference material, not part of the product, and need
+  to read as clearly separate from it — not a peer section with matching
+  warmth. Practical implication for when copy comes through: these
+  sections should read plain and functional (closer to internal
+  documentation than to client-facing copy), and the root index / any nav
+  should visually and structurally signal "internal reference" vs. "the
+  actual product," not blend them into one continuous feed-toned site.
+  Status labels (e.g. "draft, not attorney-reviewed") stay blunt regardless
+  — that guidance from before still holds, and fits naturally with this
+  plainer internal-docs register anyway. No request received yet — not
+  started.
 - **Resolved:** subcon_qualgate's pass-side reason fix landed —
   `pass_reason_components` now returns an ordered, ≥80%-filtered list of
   strong-match components instead of the lowest-scoring ones. §4 has been

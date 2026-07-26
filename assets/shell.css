@@ -1,6 +1,9 @@
-/* Shortlist — shared site shell. Reuses the tokens established in
-   design/feed-layout-spec-v1.md (client feed) so every reachable part of the
-   repo reads as one product, not a pile of separately-styled pages. */
+/* Shortlist — shared shell for the INTERNAL BUILD REFERENCE area only
+   (root overview + schemas/legal/resume/engine/reports/fixtures). Reuses the
+   same tokens as design/feed-prototype-v1.html for visual consistency, but
+   this is deliberately not the same "site" as the product: the client feed
+   and the marketing landing page are the two real product surfaces and are
+   not linked into this nav. Don't add them here. */
 
 :root {
   --canvas: #f7f4ef;
@@ -52,6 +55,19 @@ a { color: var(--accent-text); }
 }
 
 .site-wordmark:hover { text-decoration: underline; }
+
+.header-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
 
 .site-nav {
   display: flex;
@@ -165,7 +181,28 @@ a { color: var(--accent-text); }
 
 .file-card-link:hover { text-decoration: underline; }
 
-/* ---- root overview: section cards ---- */
+/* ---- root overview: area structure ---- */
+
+.area-heading {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.area-subtext {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 0 20px;
+}
+
+.area-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 44px 0 36px;
+}
+
+/* ---- root overview: "The Product" section cards ---- */
 
 .section-grid {
   display: grid;
@@ -207,6 +244,50 @@ a { color: var(--accent-text); }
   border-radius: 0 14px 14px 0;
   padding: 20px 24px;
   margin-bottom: 40px;
+}
+
+.highlight-card.placeholder {
+  border: 1px dashed var(--border);
+  border-left: 3px dashed var(--border);
+  background: transparent;
+}
+
+.highlight-card.placeholder h2,
+.highlight-card.placeholder p {
+  color: var(--text-secondary);
+}
+
+/* ---- root overview: "Internal Build Reference" section cards ----
+   Deliberately toned down relative to .section-card above -- smaller,
+   flatter, no accent hover -- so this area reads as secondary/reference,
+   not a peer of the product cards. */
+
+.section-grid.internal {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.section-card.internal {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.section-card.internal:hover {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.section-card.internal h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.section-card.internal p {
+  font-size: 12px;
 }
 
 .highlight-card .page-eyebrow { margin-bottom: 8px; }

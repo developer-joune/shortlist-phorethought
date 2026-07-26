@@ -13,7 +13,6 @@
     <a class="site-wordmark" href="index.html">Shortlist</a>
     <nav class="site-nav" aria-label="Site">
       <a href="index.html" aria-current="page">Home</a>
-      <a href="design/feed-prototype-v1.html">Feed</a>
       <a href="schemas/">Schemas</a>
       <a href="legal/">Legal</a>
       <a href="resume/">Resume</a>
@@ -29,51 +28,77 @@
   <h1>Shortlist</h1>
   <p class="page-intro">
     A job-search service built on one discipline: only apply to jobs a client is genuinely
-    qualified for. This site is a working index of the Phase 1 build — the client feed, the
-    engine that runs the qualification gate and resume tailoring, the data schemas it runs on,
-    and the legal drafts governing the service — not the product itself.
+    qualified for. This page indexes the Phase 1 build, split into what a client actually sees
+    and the internal reference material behind it.
   </p>
 
-  <div class="highlight-card">
-    <p class="page-eyebrow">Flagship deliverable</p>
-    <h2>Client feed prototype</h2>
-    <p>
-      The client-facing update mechanism — a card-based feed a client checks instead of a live
-      dashboard. Operator-approved as the v1 visual direction.
+  <section aria-labelledby="product-heading">
+    <h2 class="area-heading" id="product-heading">The Product</h2>
+    <p class="area-subtext">
+      What a client actually sees. Nothing below this line is client-facing.
     </p>
-    <div class="highlight-links">
-      <a href="design/feed-prototype-v1.html">Open the prototype →</a>
-      <a href="design/feed-layout-spec-v1.md">Layout spec</a>
-      <a href="design/a11y-review-feed-prototype-v1.md">Accessibility review</a>
-    </div>
-  </div>
 
-  <div class="section-grid">
-    <a class="section-card" href="schemas/">
-      <h2>Schemas</h2>
-      <p>The structured data formats the engine runs on — client profiles, job postings, application tracking.</p>
-    </a>
-    <a class="section-card" href="legal/">
-      <h2>Legal</h2>
-      <p>Draft consent, refund, and risk documents for the done-for-you service. Not attorney-reviewed.</p>
-    </a>
-    <a class="section-card" href="resume/">
-      <h2>Resume</h2>
-      <p>The fill-in-the-blank resume/CV template the engine tailors per application.</p>
-    </a>
-    <a class="section-card" href="engine/">
-      <h2>Engine</h2>
-      <p>The real code that scores qualification and tailors resumes — working logic, not a stub.</p>
-    </a>
-    <a class="section-card" href="reports/">
-      <h2>Reports</h2>
-      <p>Real output from running the engine end to end against a test client and job posting.</p>
-    </a>
-    <a class="section-card" href="fixtures/">
-      <h2>Fixtures</h2>
-      <p>Sample client and job-posting data used to test the engine. Not real client data.</p>
-    </a>
-  </div>
+    <div class="highlight-card">
+      <p class="page-eyebrow">Client feed</p>
+      <h2>Client feed prototype</h2>
+      <p>
+        The client-facing update mechanism — a card-based feed a client checks instead of a live
+        dashboard. Operator-approved as the v1 visual direction. Stands on its own, not part of
+        this reference site.
+      </p>
+      <div class="highlight-links">
+        <a href="design/feed-prototype-v1.html">Open the prototype →</a>
+        <a href="design/feed-layout-spec-v1.md">Layout spec</a>
+        <a href="design/a11y-review-feed-prototype-v1.md">Accessibility review</a>
+      </div>
+    </div>
+
+    <div class="highlight-card placeholder">
+      <p class="page-eyebrow">Not yet built</p>
+      <h2>Marketing landing page</h2>
+      <p>
+        The public-facing acquisition page — hero + scroll-driven presentation, a separate
+        surface from the client feed above. In progress.
+      </p>
+    </div>
+  </section>
+
+  <hr class="area-divider">
+
+  <section aria-labelledby="internal-heading">
+    <h2 class="area-heading" id="internal-heading">Internal Build Reference</h2>
+    <p class="area-subtext">
+      Operator/dev-only reference material — schemas, legal drafts, engine code, and test data.
+      A client never sees any of this; it's not part of the product.
+    </p>
+
+    <div class="section-grid internal">
+      <a class="section-card internal" href="schemas/">
+        <h2>Schemas</h2>
+        <p>The structured data formats the engine runs on — client profiles, job postings, application tracking.</p>
+      </a>
+      <a class="section-card internal" href="legal/">
+        <h2>Legal</h2>
+        <p>Draft consent, refund, and risk documents for the done-for-you service. Not attorney-reviewed.</p>
+      </a>
+      <a class="section-card internal" href="resume/">
+        <h2>Resume</h2>
+        <p>The fill-in-the-blank resume/CV template the engine tailors per application.</p>
+      </a>
+      <a class="section-card internal" href="engine/">
+        <h2>Engine</h2>
+        <p>The real code that scores qualification and tailors resumes — working logic, not a stub.</p>
+      </a>
+      <a class="section-card internal" href="reports/">
+        <h2>Reports</h2>
+        <p>Real output from running the engine end to end against a test client and job posting.</p>
+      </a>
+      <a class="section-card internal" href="fixtures/">
+        <h2>Fixtures</h2>
+        <p>Sample client and job-posting data used to test the engine. Not real client data.</p>
+      </a>
+    </div>
+  </section>
 </main>
 
 </body>
