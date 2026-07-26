@@ -237,6 +237,16 @@ reads like ad copy, not a person updating a client.
 - Visual system (color, type, card chrome) is Window 2 / a design pass, not
   covered here — this doc is voice/copy only, per spec §6's explicit note
   that visual direction is a suggested starting point, not finalized.
+- **Anticipated:** subcon_ui is adding a site shell (`schemas/`, `legal/`,
+  `resume/`, `engine/`, `reports/`, root index) reusing the feed's visual
+  language. Expect a request for plain-language descriptions of each
+  section/doc plus status labels (e.g. "draft, not attorney-reviewed" for
+  legal docs). Same voice pillars apply here — personal-but-accurate, no
+  overselling internal/technical content; a status label like "draft, not
+  attorney-reviewed" should stay exactly that blunt rather than being
+  softened, since understating a doc's review status is the more dangerous
+  failure mode than sounding slightly clinical in this one spot. No request
+  received yet — not started.
 - **Resolved:** subcon_qualgate's pass-side reason fix landed —
   `pass_reason_components` now returns an ordered, ≥80%-filtered list of
   strong-match components instead of the lowest-scoring ones. §4 has been

@@ -90,7 +90,13 @@ Per spec §6's own suggested starting point — one neutral background, one acce
   stay clearly away from). Used *sparingly and consistently*: qualification-line accent, primary CTA
   text/underline, filled steps in the status tracker, and gamification numerals. If it shows up
   everywhere, it stops functioning as an accent.
-- **Text**: near-black for primary content, mid-gray for secondary/meta — two tones is enough.
+  - **Two shades of the accent, not one** (added after subcon_a11y's contrast review): the accent as a
+    *background/border* (qual-line tint, filled step dots) and the accent as *text* (CTA link, stat
+    numerals) need different lightness values — the background-safe shade fails WCAG contrast at
+    text sizes. Keep one hue, ship a darker `--accent-text` variant for anything rendered as text.
+- **Text**: near-black for primary content, mid-gray for secondary/meta — two tones is enough. (Muted/
+  timestamp text uses the same secondary tone rather than a third, lighter gray — a third tone was the
+  one that failed contrast; reuse over introducing more grays.)
 
 ## 4. Status indicator — step-tracker (recommended) vs. ring
 
@@ -137,9 +143,28 @@ guide (`mindmaking/chat_shortlist_phorethought_subcon_brand/_a_a_notes/note_000/
 their worked "Maria / Meridian Health" example) rather than hand-written here — per the brief, copy stays
 brand's call, this file only supplies structure/visual treatment for it to sit in.
 
-Two things not yet locked, both flagged inline in the prototype's own header note:
-- Status stage names (`Applied / Under review / Interview / Offer`) are placeholders pending
-  subcon_qualgate's actual status model.
-- The step-tracker currently exposes state via `role="img" aria-label="…"` on the container — a
-  reasonable default, but this is exactly the kind of call subcon_a11y should review once looped in,
-  rather than this doc treating it as final.
+One thing not yet locked: status stage names (`Applied / Under review / Interview / Offer`) are
+placeholders pending subcon_qualgate's actual status model.
+
+## 8. A11y pass v1 (applied)
+
+subcon_a11y reviewed the prototype (`design/a11y-review-feed-prototype-v1.md`) — verdict on the
+step-tracker's `role="img" aria-label="…"` pattern was **sound, keep it** (status isn't conveyed by
+color/shape alone; the label carries the same info plus the "step X of 4" detail). Five fixes applied
+directly to `feed-prototype-v1.html`:
+
+1. Contrast — see §3's new "two shades of accent" note; `--text-muted` merged into `--text-secondary`'s
+   tone, added `--accent-text` as a darker text-safe variant of the accent.
+2. `.feed-greeting` is now an `<h1>` (was a bare `<p>` with no page heading above the three job-title
+   h2s).
+3. `.feed` wrapped in `<main>`; `.card-stream` has `role="feed"`; each card has `aria-posinset`/
+   `aria-setsize` (WAI-ARIA Feed pattern — worth having in place before card volume scales to the
+   $99-tier's ~25/month).
+4. Each "See the full match card →" link now has a distinguishing `aria-label` (job + company).
+5. `.avatar` initials are `aria-hidden="true"` (redundant with the adjacent company name).
+
+Two drift risks flagged by the reviewer for whoever wires this to real data, noted inline in the
+prototype: the step-tracker's "step X of 4" and the cards' `aria-posinset`/`aria-setsize` are all
+currently hand-typed to match this static 3-card demo — both need to be computed from the same array
+that drives the rendered cards/dots once real qualgate/data-schema output exists, not maintained as
+separate strings.

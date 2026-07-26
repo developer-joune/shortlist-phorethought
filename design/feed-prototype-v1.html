@@ -11,8 +11,9 @@
     --border: #e8e2d8;
     --text-primary: #211d17;
     --text-secondary: #6b6455;
-    --text-muted: #9a9384;
+    --text-muted: #6b6455;
     --accent: #c07830;
+    --accent-text: #a3651f;
     --accent-tint: #f5e8d8;
     --accent-tint-border: #e0bf8f;
     --step-filled: #c07830;
@@ -52,7 +53,7 @@
   }
 
   .stat-strip strong {
-    color: var(--accent);
+    color: var(--accent-text);
     font-weight: 700;
   }
 
@@ -191,7 +192,7 @@
   .card-action {
     font-size: 13px;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--accent-text);
     text-decoration: none;
   }
 
@@ -223,21 +224,26 @@
   Prototype v1 — structural reference only. Copy sourced from subcon_brand's tone/voice guide
   (worked example, note_000). Company/role/skill details are that example's placeholder client (Maria),
   not real client data. Status stage labels are placeholders pending subcon_qualgate's status model.
+  A11y pass v1 applied (subcon_a11y review, see design/a11y-review-feed-prototype-v1.md): contrast
+  fixes on muted/accent text, h1 greeting, main + role="feed" + posinset/setsize, per-card link labels,
+  hidden avatar initials. Note: aria-posinset/setsize below are still hand-typed (setsize=3) to match
+  this 3-card demo — once wired to real data, derive both from the same array driving the rendered
+  cards/dots, same drift risk the reviewer flagged for the step-tracker's "step X of 4" label.
 </div>
 
-<div class="feed">
+<main class="feed">
 
   <div class="feed-header">
-    <p class="feed-greeting">Hey Maria, here's your week</p>
+    <h1 class="feed-greeting">Hey Maria, here's your week</h1>
     <p class="stat-strip"><strong>7</strong> applications sent this month · <strong>1</strong> company responded</p>
   </div>
 
-  <div class="card-stream">
+  <div class="card-stream" role="feed" aria-label="Your job matches">
 
     <!-- Card 1: newly applied -->
-    <article class="card">
+    <article class="card" aria-posinset="1" aria-setsize="3">
       <div class="card-header">
-        <div class="avatar">M</div>
+        <div class="avatar" aria-hidden="true">M</div>
         <span class="company-name">Meridian Health</span>
         <span class="card-timestamp">Today</span>
       </div>
@@ -264,15 +270,15 @@
         </div>
       </div>
       <div class="card-footer">
-        <a class="card-action" href="#">See the full match card →</a>
+        <a class="card-action" href="#" aria-label="See full match card — Senior Data Analyst at Meridian Health">See the full match card →</a>
         <span class="card-footer-meta">Applied Jul 25</span>
       </div>
     </article>
 
     <!-- Card 2: under review -->
-    <article class="card">
+    <article class="card" aria-posinset="2" aria-setsize="3">
       <div class="card-header">
-        <div class="avatar">C</div>
+        <div class="avatar" aria-hidden="true">C</div>
         <span class="company-name">Cascade Logistics</span>
         <span class="card-timestamp">3d ago</span>
       </div>
@@ -298,15 +304,15 @@
         </div>
       </div>
       <div class="card-footer">
-        <a class="card-action" href="#">See the full match card →</a>
+        <a class="card-action" href="#" aria-label="See full match card — Supply Chain Analyst at Cascade Logistics">See the full match card →</a>
         <span class="card-footer-meta">Applied Jul 22</span>
       </div>
     </article>
 
     <!-- Card 3: interview stage -->
-    <article class="card">
+    <article class="card" aria-posinset="3" aria-setsize="3">
       <div class="card-header">
-        <div class="avatar">N</div>
+        <div class="avatar" aria-hidden="true">N</div>
         <span class="company-name">Norwell Insurance</span>
         <span class="card-timestamp">1w ago</span>
       </div>
@@ -332,13 +338,13 @@
         </div>
       </div>
       <div class="card-footer">
-        <a class="card-action" href="#">See the full match card →</a>
+        <a class="card-action" href="#" aria-label="See full match card — Business Intelligence Analyst at Norwell Insurance">See the full match card →</a>
         <span class="card-footer-meta">Applied Jul 17</span>
       </div>
     </article>
 
   </div>
-</div>
+</main>
 
 </body>
 </html>
