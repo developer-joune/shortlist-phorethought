@@ -189,6 +189,11 @@ function scoreCompensationFit(clientProfile, jobPosting) {
   const salary = jobPosting.salary;
   const floorValue = floor ? (floor.min != null ? floor.min : floor.max) : null;
   if (!salary || (salary.min == null && salary.max == null) || floorValue == null) {
+    // 6/10 = 60%, deliberately under the 80% pass_reason-eligibility floor
+    // in buildReasonFromSubScores below -- if this value is ever retuned
+    // upward, confirm it still can't be picked as a "strong match"
+    // contributor for something that was never actually measured
+    // (subcon_qualgate's review, commit 06a7bc8).
     return { score: 6, max: 10 }; // unlisted salary -- neutral, not a strike
   }
   const midpoint = salary.min != null && salary.max != null ? (salary.min + salary.max) / 2 : (salary.max != null ? salary.max : salary.min);
@@ -216,6 +221,11 @@ function scoreScreeningCompatibility(clientProfile, jobPosting) {
   // screening_answers) always scored 0/5 here, which the reason-picker
   // below could then present as a fabricated-looking "weak screening fit"
   // to a visitor who was never even asked a screening question.
+  // 3/5 = 60%, deliberately under the 80% pass_reason-eligibility floor in
+  // buildReasonFromSubScores below -- same load-bearing constraint as
+  // compensation_fit's neutral value above, confirmed safe together by
+  // subcon_qualgate (commit 06a7bc8): if either is retuned upward, re-check
+  // it can't cross into pass_reason territory for something never measured.
   if (answers.length === 0) return { score: 3, max: 5, neutral: true };
   const answerCategories = new Set(answers.map((a) => a.question_category));
   const matched = questions.filter((q) => answerCategories.has(q.question_category)).length;
@@ -277,6 +287,12 @@ function buildReasonFromSubScores(subScores, band) {
   const lowestTwo = measuredAsc.slice(0, 2);
   const rejectReason = `Weakest fit on ${lowestTwo.map((s) => `${labelFor(s.name)} (${s.pct_of_max}%)`).join(' and ')}.`;
 
+  // This 80% floor is load-bearing beyond just "strong match" framing: it's
+  // also what keeps compensation_fit's and screening_compatibility's
+  // neutral-for-missing-data values (both pegged at 60%) from ever being
+  // picked here as a fabricated-flattering reason for something that was
+  // never actually measured. If this threshold moves down, re-check both
+  // neutral values still fall safely under it (subcon_qualgate, 06a7bc8).
   let passComponents = byPctDesc.filter((s) => s.pct_of_max >= 80).slice(0, 2);
   if (passComponents.length === 0) passComponents = [byPctDesc[0]];
   const passReason = `Strong match on ${passComponents.map((s) => `${labelFor(s.name)} (${s.pct_of_max}%)`).join(' and ')}.`;
