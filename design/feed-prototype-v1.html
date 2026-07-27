@@ -364,7 +364,7 @@
         buildStepTracker(stageIndex, stageLabel),
       ]),
       el('div', { class: 'card-footer' }, [
-        el('a', { class: 'card-action', href: '#', 'aria-label': 'See full match card — ' + app.jobTitleSnapshot + ' at ' + app.companySnapshot, text: 'See the full match card →' }),
+        el('a', { class: 'card-action', href: 'match-detail.html?trackingId=' + encodeURIComponent(app.trackingId), 'aria-label': 'See full match card — ' + app.jobTitleSnapshot + ' at ' + app.companySnapshot, text: 'See the full match card →' }),
         el('span', { class: 'card-footer-meta', text: formatDate(latestHistory.changed_at) }),
       ]),
     ]);
