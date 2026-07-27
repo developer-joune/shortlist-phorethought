@@ -231,8 +231,9 @@
 
 <div class="spec-note">
   Wired to the live API (same origin as this page) — GET /api/me, gated behind client login (session
-  cookie, no clientId in the URL or hardcoded anymore). Only applications with band !== "reject"
-  are shown (internally-rejected jobs never reach the client). Card copy (qual-line) is the
+  cookie, no clientId in the URL or hardcoded anymore). Only applications with band === "qualified"
+  are shown -- rejects never reach the client, and neither do unresolved borderline applications
+  until an operator promotes them via the review queue. Card copy (qual-line) is the
   engine's real pass_reason string, not subcon_brand's narrative voice pass — worth a follow-up
   with subcon_brand/subcon_resume on rewording once resume-tailoring output exists.
   Step-tracker fill and "step N of 4" label, plus aria-posinset/aria-setsize, are derived from
@@ -380,10 +381,12 @@
       var firstName = client.name.split(' ')[0];
       document.getElementById('feed-greeting').textContent = 'Hey ' + firstName + ", here's your week";
 
-      // Internally-rejected applications never reach the client feed — only
-      // jobs that cleared the qualification gate (or are still pending an
-      // operator's borderline call) are shown.
-      var visible = client.applications.filter(function (a) { return a.band !== 'reject'; });
+      // Only genuinely qualified matches reach the client feed. Rejects
+      // never show; borderline applications don't either, until an
+      // operator resolves them (POST /api/applications/:id/decision) --
+      // otherwise a client would see a job the operator hasn't actually
+      // decided is a real match yet.
+      var visible = client.applications.filter(function (a) { return a.band === 'qualified'; });
 
       var responded = visible.filter(function (a) { return stageIndexForStatus(a.status) > 0; }).length;
       document.getElementById('feed-stats').innerHTML =

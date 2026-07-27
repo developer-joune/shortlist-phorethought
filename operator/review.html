@@ -211,6 +211,7 @@
     var reasonId = 'reason-' + idSuffix;
     var promoteId = 'promote-' + idSuffix;
     var rejectId = 'reject-' + idSuffix;
+    var statusId = 'decision-status-' + idSuffix;
 
     var panel = el('div', { class: 'panel decision-panel' }, [
       el('p', { class: 'panel-label', text: 'Decision' }),
@@ -219,22 +220,52 @@
         placeholder: 'Required — why you\'re promoting or rejecting this one. Logged either way.',
         'aria-label': 'Decision reason (required)',
       }),
-      el('p', { class: 'decision-note', text: 'Exactly two outcomes — no snooze/defer. A reason is required for either one. Not yet wired to a write endpoint (server.js currently only exposes read-only GET routes) — decision buttons are shown for reference but do not submit anywhere yet.' }),
+      el('p', { class: 'decision-note', text: 'Exactly two outcomes — no snooze/defer. A reason is required for either one.' }),
       el('div', { class: 'decision-actions' }, [
         el('button', { type: 'button', class: 'btn-promote', id: promoteId, disabled: 'disabled', text: 'Promote to Qualified' }),
         el('button', { type: 'button', class: 'btn-reject', id: rejectId, disabled: 'disabled', text: 'Confirm Reject' }),
       ]),
+      el('p', { class: 'decision-note', id: statusId, role: 'alert' }),
     ]);
 
     setTimeout(function () {
       var reasonField = document.getElementById(reasonId);
       var promoteBtn = document.getElementById(promoteId);
       var rejectBtn = document.getElementById(rejectId);
+      var statusEl = document.getElementById(statusId);
+
       reasonField.addEventListener('input', function () {
         var hasReason = reasonField.value.trim().length > 0;
         promoteBtn.disabled = !hasReason;
         rejectBtn.disabled = !hasReason;
       });
+
+      function submitDecision(decision) {
+        promoteBtn.disabled = true;
+        rejectBtn.disabled = true;
+        statusEl.textContent = 'Saving…';
+
+        fetch(API_BASE + '/api/applications/' + encodeURIComponent(trackingId) + '/decision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ decision: decision, reason: reasonField.value.trim() }),
+        })
+          .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
+          .then(function (result) {
+            if (!result.ok) throw new Error(result.body.error || 'Failed to record decision.');
+            statusEl.textContent = 'Saved — ' + (decision === 'promote' ? 'promoted to qualified' : 'confirmed reject') + '. Reloading…';
+            window.location.reload();
+          })
+          .catch(function (err) {
+            statusEl.textContent = err.message;
+            promoteBtn.disabled = reasonField.value.trim().length === 0;
+            rejectBtn.disabled = reasonField.value.trim().length === 0;
+          });
+      }
+
+      promoteBtn.addEventListener('click', function () { submitDecision('promote'); });
+      rejectBtn.addEventListener('click', function () { submitDecision('reject'); });
     }, 0);
 
     return panel;

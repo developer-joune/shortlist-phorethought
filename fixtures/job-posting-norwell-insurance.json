@@ -1,0 +1,45 @@
+{
+  "job_id": "norwell-insurance-bi-analyst-2026",
+  "source_url": "https://example.com/careers/norwell-insurance/bi-analyst",
+  "source_platform": "company_site",
+  "date_posted": "2026-07-18",
+  "date_scraped": "2026-07-25T09:10:00Z",
+  "company": {
+    "name": "Norwell Insurance",
+    "industry": "Insurance",
+    "size": "large",
+    "company_url": "https://norwellinsurance.example.com"
+  },
+  "title": "Business Intelligence Analyst",
+  "seniority_level": "senior",
+  "requirements": {
+    "must_have_skills": [
+      { "skill_id": "sql", "display_name": "SQL", "min_years": 4 },
+      { "skill_id": "data-analysis", "display_name": "Data Analysis", "min_years": 3 }
+    ],
+    "min_years_total_experience": 6,
+    "required_education": { "level": "bachelor" }
+  },
+  "nice_to_have_skills": [
+    { "skill_id": "power-bi", "display_name": "Power BI" },
+    { "skill_id": "financial-modeling", "display_name": "Financial Modeling" }
+  ],
+  "location": {
+    "city": "Milwaukee",
+    "region": "WI",
+    "country": "USA",
+    "remote_policy": "onsite"
+  },
+  "salary": {
+    "min": 88000,
+    "max": 101000,
+    "currency": "USD",
+    "period": "year"
+  },
+  "screening_questions": [
+    { "question_text": "Are you willing to relocate to Milwaukee, WI?", "question_category": "relocation_willingness", "required": true },
+    { "question_text": "What are your salary expectations?", "question_category": "salary_expectation", "required": true }
+  ],
+  "red_flags": [],
+  "raw_description_text": "Norwell Insurance is hiring a Business Intelligence Analyst to join our claims analytics team in Milwaukee, WI. Power BI experience strongly preferred."
+}

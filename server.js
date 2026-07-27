@@ -306,6 +306,77 @@ app.get('/api/applications', requireOperator, async (req, res) => {
   }
 });
 
+// POST /api/applications/:trackingId/decision -- resolves a borderline
+// application into qualified or rejected. Implements
+// application-tracking.schema.json's borderline_resolution shape exactly
+// (operator_decision/operator_reason/decided_at/decided_by/score_snapshot),
+// per subcon_qualgate's rubric v1 sec8: operator_reason is unconditionally
+// required for both outcomes, not just the ones that deviate from a
+// default -- a borderline band has no default to override.
+app.post('/api/applications/:trackingId/decision', requireOperator, async (req, res) => {
+  try {
+    const { decision, reason } = req.body || {};
+    if (decision !== 'promote' && decision !== 'reject') {
+      return res.status(400).json({ error: 'decision must be "promote" or "reject".' });
+    }
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ error: 'reason is required.' });
+    }
+
+    const application = await prisma.application.findUnique({ where: { trackingId: req.params.trackingId } });
+    if (!application) {
+      return res.status(404).json({ error: `No application with trackingId "${req.params.trackingId}".` });
+    }
+    if (application.band !== 'borderline') {
+      return res.status(400).json({ error: `Application is band "${application.band}", not "borderline" -- nothing to resolve.` });
+    }
+
+    const operator = await prisma.operator.findUnique({ where: { id: req.session.operatorId } });
+    const now = new Date().toISOString();
+    const fullResult = JSON.parse(application.fullResult);
+
+    const newBand = decision === 'promote' ? 'qualified' : 'reject';
+    const newStatus = decision === 'promote' ? 'gated_pass' : 'gated_fail';
+
+    fullResult.band = newBand;
+    fullResult.borderline_resolution = {
+      operator_decision: decision === 'promote' ? 'promoted_qualified' : 'confirmed_reject',
+      operator_reason: reason.trim(),
+      decided_at: now,
+      decided_by: operator ? operator.email : undefined,
+      score_snapshot: {
+        total_score: application.totalScore,
+        sub_scores: fullResult.sub_scores,
+      },
+    };
+
+    const statusHistory = JSON.parse(application.statusHistory);
+    statusHistory.push({ status: newStatus, changed_at: now, note: `Operator ${decision}d this borderline application: ${reason.trim()}` });
+
+    const updated = await prisma.application.update({
+      where: { trackingId: req.params.trackingId },
+      data: {
+        band: newBand,
+        status: newStatus,
+        passReason: decision === 'promote' ? reason.trim() : null,
+        rejectReason: decision === 'reject' ? reason.trim() : null,
+        statusHistory: JSON.stringify(statusHistory),
+        fullResult: JSON.stringify(fullResult),
+      },
+    });
+
+    res.json({
+      trackingId: updated.trackingId,
+      band: updated.band,
+      status: updated.status,
+      borderline_resolution: fullResult.borderline_resolution,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to record decision.' });
+  }
+});
+
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'design', 'login.html')));
 app.get('/operator/login', (req, res) => res.sendFile(path.join(__dirname, 'operator', 'login.html')));
 

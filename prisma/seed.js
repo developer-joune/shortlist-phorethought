@@ -121,6 +121,7 @@ async function main() {
   const maria = loadFixture('client-profile-maria.json');
   const meridianHealth = loadFixture('job-posting-meridian-health.json');
   const northgateRetail = loadFixture('job-posting-northgate-retail.json');
+  const norwellInsurance = loadFixture('job-posting-norwell-insurance.json');
 
   const [operatorPasswordHash, clientPasswordHash] = await Promise.all([
     bcrypt.hash(DEV_OPERATOR_PASSWORD, 10),
@@ -130,10 +131,15 @@ async function main() {
   const mariaRow = await upsertClient(maria, clientPasswordHash);
   const meridianRow = await upsertJobPosting(meridianHealth);
   const northgateRow = await upsertJobPosting(northgateRetail);
+  const norwellRow = await upsertJobPosting(norwellInsurance);
   await upsertOperator(DEV_OPERATOR_EMAIL, operatorPasswordHash);
 
   await seedApplication(maria, meridianHealth, mariaRow, meridianRow);
   await seedApplication(maria, northgateRetail, mariaRow, northgateRow);
+  // Scores 74.6 -- all hard gates pass, weighted score lands in the 55-74
+  // borderline band -- so the operator review queue's promote/reject
+  // decision flow has a real example to exercise end to end, not zero.
+  await seedApplication(maria, norwellInsurance, mariaRow, norwellRow);
 
   console.log('\nSeed complete.');
   console.log('\nDev login credentials (local only -- not production secrets):');
