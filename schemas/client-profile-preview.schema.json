@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shortlist.phorethought.local/schemas/client-profile-preview.schema.json",
+  "title": "Shortlist Client Profile — Preview/Tier-Zero Variant (ephemeral, not persisted)",
+  "description": "Documents the in-memory object POST /api/preview (server.js) builds from a short anonymous form and passes directly to scoreApplication() against every stored JobPosting. Never persisted -- no Prisma model, no database row, exists only for the duration of one request. Written as documentation (and a future test-fixture target once a test suite exists), not as runtime validation on the live request: it's a trusted, server-constructed object, so the risk this guards against is future code drift between server.js and engine/qualification-gate.js, not malformed request input. NOT a $ref subset of client-profile.schema.json -- the required-field sets diverge too much (no name/email/work_authorization/consent, a qualification_bar with only target_seniority, work_history with no entry_id/company/title/bullets) to express as one schema with relaxed 'required'. Instead a sibling schema that reuses shared-defs.schema.json's $defs (skillRef, remotePolicy, money, exclusionCategory, seniorityLevel, dateOrPresent) so the two never drift on primitive vocabulary even though their shapes differ. Every omission/trim documented below was verified against engine/qualification-gate.js's actual field reads (subcon_dataschema consult, q_and_a/.archived) -- each one degrades to a neutral or partial-credit score rather than a hard gate failure or a crash.",
+  "type": "object",
+  "required": ["basics", "skills", "work_history", "screening_answers", "exclusions"],
+  "properties": {
+
+    "basics": {
+      "type": "object",
+      "description": "Trimmed relative to client-profile.basics: no name/email/phone/location/links/work_authorization/notice_period_days (anonymous, pre-signup -- none of those are read by the gate anyway). target_job_titles and target_locations may be empty arrays; unlike client-profile.schema.json this schema does not require minItems:1 on them, since the /api/preview form doesn't enforce either field.",
+      "required": ["target_job_titles", "target_locations"],
+      "properties": {
+        "target_job_titles": { "type": "array", "items": { "type": "string" } },
+        "target_locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "city": { "type": "string" },
+              "region": { "type": "string" },
+              "remote_ok": { "$ref": "shared-defs.schema.json#/$defs/remotePolicy" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "salary_floor": {
+          "$ref": "shared-defs.schema.json#/$defs/money",
+          "description": "Optional -- present only when the visitor enters a salary floor. Absent (not a null/zero placeholder) otherwise, so scoreCompensationFit()'s floorValue==null branch (neutral 6/10) reads as an honest 'unspecified' rather than a real floor of zero."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "qualification_bar": {
+      "type": "object",
+      "description": "Optional at the top level -- present only when the visitor picks a target seniority (added commit 06a7bc8; omitted, not set to an 'unspecified'-style value, when they choose 'prefer not to say', so scoreSeniorityFit()'s clientLevel==null neutral fallback stays an honest unknown rather than a mislabeled comparison). Unlike client-profile.qualification_bar, carries only target_seniority -- no must_have_skill_ids/nice_to_have_skill_ids/gate_strictness, none of which the trimmed intake collects and none of which scoreSeniorityFit() reads.",
+      "required": ["target_seniority"],
+      "properties": {
+        "target_seniority": { "$ref": "shared-defs.schema.json#/$defs/seniorityLevel" }
+      },
+      "additionalProperties": false
+    },
+
+    "skills": {
+      "type": "array",
+      "description": "Trimmed relative to client-profile.skills: only skill_id + years_experience are collected -- no category/proficiency/last_used/certification_details. Verified safe: clientHasSkill() and scoreRequiredSkillsCoverage() in qualification-gate.js only ever read skill_id and years_experience off a *client's* skill entries; the displayNameFor()/categoryFor() lookups elsewhere in the gate are applied to the *job posting's* required-skill entries for error-message text, never to the client's.",
+      "items": {
+        "allOf": [
+          { "$ref": "shared-defs.schema.json#/$defs/skillRef" },
+          {
+            "type": "object",
+            "required": ["skill_id", "years_experience"],
+            "properties": {
+              "years_experience": { "type": "number", "minimum": 0 }
+            }
+          }
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+
+    "work_history": {
+      "type": "array",
+      "maxItems": 1,
+      "description": "Not real employment records. At most one synthesized entry approximating computeTotalYears()'s expected input from a single 'years of experience' number (empty array if the visitor entered 0). No entry_id/company/title/bullets -- the only reader in qualification-gate.js, computeTotalYears(), uses start_date only.",
+      "items": {
+        "type": "object",
+        "required": ["start_date", "end_date"],
+        "properties": {
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": {
+            "$ref": "shared-defs.schema.json#/$defs/dateOrPresent",
+            "description": "Always the literal 'present' in the current implementation -- the entry is synthesized as of the request time, not a real end date."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "screening_answers": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "Always empty in the current /api/preview implementation -- screening is deferred to a real signup. Kept as its own (empty) array rather than omitted because scoreScreeningCompatibility() in qualification-gate.js reads clientProfile.screening_answers directly; an empty array degrades to partial credit on its own 5%-weighted sub-score, not a hard gate failure. maxItems:0 documents today's reality -- relax this if a future iteration starts collecting a subset of screening answers up front."
+    },
+
+    "exclusions": {
+      "type": "object",
+      "description": "Same field shape as client-profile.exclusions, but every key is always present here (the /api/preview handler always builds the full sub-object) rather than just dealbreakers being required.",
+      "required": ["excluded_companies", "excluded_industries", "required_remote_policy", "dealbreakers"],
+      "properties": {
+        "excluded_companies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 0,
+          "description": "Always empty -- not collected in the trimmed intake."
+        },
+        "excluded_industries": { "type": "array", "items": { "type": "string" } },
+        "required_remote_policy": { "$ref": "shared-defs.schema.json#/$defs/remotePolicy" },
+        "dealbreakers": {
+          "type": "array",
+          "maxItems": 1,
+          "description": "Currently only ever populated with a single weekend_or_oncall_work entry when the visitor checks 'not available for weekends/on-call' -- other exclusion categories aren't collected in the trimmed intake.",
+          "items": {
+            "type": "object",
+            "required": ["category"],
+            "properties": {
+              "category": { "$ref": "shared-defs.schema.json#/$defs/exclusionCategory" },
+              "detail": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
