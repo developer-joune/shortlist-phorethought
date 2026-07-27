@@ -1,0 +1,97 @@
+// Shortlist backend — Prisma schema.
+//
+// Mirrors the three JSON schemas subcon_dataschema already designed
+// (schemas/client-profile.schema.json, job-posting.schema.json,
+// application-tracking.schema.json). Rather than fully normalizing every
+// nested field (skills[], work_history[], requirements, etc.) into
+// relational columns, each model promotes only the fields the API/UI needs
+// to query or display directly, and stores the full source document as
+// JSON -- so nothing from the original schema is lost, and the two
+// representations can be cross-checked against each other.
+//
+// JSON-as-String, not Prisma's native Json type: Prisma's Json scalar is
+// only supported on SQLite starting v6.2 (github.com/prisma/prisma
+// issue #3786), which requires Node >=18.18 -- this environment runs Node
+// 18.12, one which Prisma 6+ hard-blocks on at install (not just a
+// warning). Pinning to Prisma 5 (Node-18.12-compatible) and storing these
+// fields as String, JSON.stringify()'d on write and JSON.parse()'d on
+// read at the application layer, is the standard workaround for exactly
+// this combination and gets the same effective behavior. Moving to
+// Postgres later (the AWS RDS requirement) is the moment to promote these
+// four fields to real Json/jsonb columns, since Postgres support is
+// unconditional regardless of Prisma version -- a schema + migration
+// change, not a rewrite.
+//
+// provider = "sqlite" for local dev; the datasource provider + url are the
+// only lines that change for the eventual Postgres/RDS move.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id           String        @id @default(cuid())
+  clientId     String        @unique // client-profile.schema.json's client_id (e.g. "maria-torres-2026")
+  name         String
+  email        String
+  profile      String        // full client-profile.schema.json document, JSON.stringify()'d
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model JobPosting {
+  id           String        @id @default(cuid())
+  jobId        String        @unique // job-posting.schema.json's job_id
+  title        String
+  companyName  String
+  posting      String        // full job-posting.schema.json document, JSON.stringify()'d
+  applications Application[]
+  createdAt    DateTime      @default(now())
+}
+
+model Application {
+  id                String     @id @default(cuid())
+  trackingId        String     @unique // application-tracking.schema.json's tracking_id
+
+  clientId          String
+  client            Client     @relation(fields: [clientId], references: [id])
+
+  jobPostingId      String
+  jobPosting        JobPosting @relation(fields: [jobPostingId], references: [id])
+
+  // Promoted from qualification_result for direct querying/sorting.
+  totalScore        Float?     // null when hard-gate rejected (no score computed)
+  band              String     // "qualified" | "borderline" | "reject"
+  passReason        String?
+  rejectReason      String?
+
+  // application-tracking.schema.json's status enum, as a string (SQLite has
+  // no native enum type; Postgres migration can promote this to a real enum
+  // later without touching application code).
+  status            String
+
+  // Append-only status transition log -- application-tracking.schema.json's
+  // status_history[], JSON.stringify()'d (see file header re: Json-as-String).
+  statusHistory     String
+
+  // The complete, unmodified output of engine/qualification-gate.js's
+  // scoreApplication() -- hard_gates[], sub_scores[], reason{}, etc. --
+  // JSON.stringify()'d, so the full audit trail survives even though only
+  // a few fields are promoted to real columns above.
+  fullResult        String
+
+  resumeVersionUsed String?
+  dateApplied       DateTime?
+
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([band])
+  @@index([clientId])
+}

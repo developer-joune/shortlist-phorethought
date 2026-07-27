@@ -1,0 +1,32 @@
+{
+  "name": "product",
+  "version": "1.0.0",
+  "description": "",
+  "main": "run-application.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/developer-joune/shortlist-phorethought.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/developer-joune/shortlist-phorethought/issues"
+  },
+  "homepage": "https://github.com/developer-joune/shortlist-phorethought#readme",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}
