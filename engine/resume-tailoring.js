@@ -93,7 +93,9 @@ function renderBullet(bullet, jobPosting) {
   const isTierA = Boolean(bullet.action_verb && bullet.task && bullet.metric_or_result);
   if (isTierA) {
     const task = resolvePlaceholders(bullet.task, jobPosting);
-    const text = `${bullet.action_verb} ${task}, ${bullet.metric_or_result}.`;
+    const method = resolvePlaceholders(bullet.method, jobPosting);
+    const methodClause = method ? ` using ${method}` : '';
+    const text = `${bullet.action_verb} ${task}${methodClause}, ${bullet.metric_or_result}.`;
     return { text, tier: 'A', source_bullet_id: bullet.bullet_id };
   }
   return { text: bullet.text, tier: 'B', source_bullet_id: bullet.bullet_id };
