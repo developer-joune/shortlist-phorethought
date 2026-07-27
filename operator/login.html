@@ -43,7 +43,7 @@
     width: 100%; font: inherit; font-size: 14px; font-weight: 700; border-radius: 999px; padding: 11px 20px;
     border: 1px solid var(--accent); background: var(--accent); color: #2b1c0c; cursor: pointer;
   }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button:disabled, button[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
   .error { color: var(--fail); font-size: 13px; margin: 0 0 14px; display: none; }
   .error.visible { display: block; }
 </style>
@@ -70,11 +70,19 @@
   var form = document.getElementById('login-form');
   var errorEl = document.getElementById('error');
   var submitBtn = document.getElementById('submit-btn');
+  var submitting = false;
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    if (submitting) return;
+    submitting = true;
     errorEl.classList.remove('visible');
-    submitBtn.disabled = true;
+    // aria-disabled, not disabled -- a disabled control can't hold focus,
+    // which would strand focus at <body> since this fires while the
+    // button is still focused (per subcon_a11y's review). The submitting
+    // flag above does the actual re-entry guarding aria-disabled can't.
+    submitBtn.setAttribute('aria-disabled', 'true');
+    submitBtn.textContent = 'Signing in…';
 
     fetch(API_BASE + '/api/auth/operator/login', {
       method: 'POST',
@@ -93,7 +101,10 @@
       .catch(function (err) {
         errorEl.textContent = err.message;
         errorEl.classList.add('visible');
-        submitBtn.disabled = false;
+        submitting = false;
+        submitBtn.removeAttribute('aria-disabled');
+        submitBtn.textContent = 'Sign in';
+        submitBtn.focus();
       });
   });
 </script>
