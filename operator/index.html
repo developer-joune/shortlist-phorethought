@@ -60,76 +60,113 @@
 <body>
 
 <main class="page">
-  <p class="eyebrow">Operator · Borderline reviews</p>
-  <h1>Reviews waiting on you <span class="count-badge">4 pending</span></h1>
+  <p class="eyebrow">Operator · Client roster</p>
+  <h1>Clients <span class="count-badge" id="client-count">— pending</span></h1>
   <p class="intro">
-    Every job here already passed all 8 hard gates and scored 55–74 — a middling weighted
-    match, not a rejection. Each one needs your judgment call: promote to qualified, or
-    confirm it stays rejected. Sorted oldest-flagged-first, so nothing quietly ages in the
-    backlog.
+    Every client currently on file, with their latest application status and how many jobs
+    they've been evaluated against. Open a client to see their full application history,
+    including the score/reason behind every job.
   </p>
 
   <table>
     <thead>
       <tr>
-        <th>Job</th>
         <th>Client</th>
-        <th>Score</th>
-        <th>Flagged</th>
+        <th>Status</th>
+        <th>Applications</th>
+        <th>Latest</th>
         <th></th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td>
-          <div class="job-title">Project Manager</div>
-          <div class="job-company">Ferro Group</div>
-        </td>
-        <td>James K.</td>
-        <td><span class="score-chip">59/100</span></td>
-        <td class="age">5d ago</td>
-        <td><a class="review-link" href="review.html">Review →</a></td>
-      </tr>
-      <tr>
-        <td>
-          <div class="job-title">Senior Data Analyst</div>
-          <div class="job-company">Meridian Health</div>
-        </td>
-        <td>Maria T.</td>
-        <td><span class="score-chip">66/100</span></td>
-        <td class="age">3d ago</td>
-        <td><a class="review-link" href="review.html">Review →</a></td>
-      </tr>
-      <tr>
-        <td>
-          <div class="job-title">Business Intelligence Analyst</div>
-          <div class="job-company">Norwell Insurance</div>
-        </td>
-        <td>Maria T.</td>
-        <td><span class="score-chip">61/100</span></td>
-        <td class="age">1d ago</td>
-        <td><a class="review-link" href="review.html">Review →</a></td>
-      </tr>
-      <tr>
-        <td>
-          <div class="job-title">Operations Lead</div>
-          <div class="job-company">Stackline</div>
-        </td>
-        <td>James K.</td>
-        <td><span class="score-chip">72/100</span></td>
-        <td class="age">2h ago</td>
-        <td><a class="review-link" href="review.html">Review →</a></td>
-      </tr>
+    <tbody id="client-rows">
+      <tr><td colspan="5">Loading…</td></tr>
     </tbody>
   </table>
 
-  <p class="sort-note">
-    Prototype note: all four rows link to the same worked example (Senior Data Analyst @
-    Meridian Health) — this queue demonstrates the list structure, not four distinct
-    reviews. Sort order (oldest-flagged-first) confirmed by the operator; not yet wired to
-    a live data source since Phase 1 has no backend.
+  <p class="sort-note" id="page-note">
+    Live data from GET /api/clients (localhost:3001).
   </p>
 </main>
+
+<script>
+  var API_BASE = 'http://localhost:3001';
+
+  function bandLabel(band) {
+    if (!band) return '—';
+    return band.charAt(0).toUpperCase() + band.slice(1);
+  }
+
+  function statusLabel(status) {
+    if (!status) return '—';
+    return status.replace(/_/g, ' ');
+  }
+
+  function renderRow(client) {
+    var tr = document.createElement('tr');
+
+    var nameTd = document.createElement('td');
+    var nameDiv = document.createElement('div');
+    nameDiv.className = 'job-title';
+    nameDiv.textContent = client.name;
+    var emailDiv = document.createElement('div');
+    emailDiv.className = 'job-company';
+    emailDiv.textContent = client.email;
+    nameTd.appendChild(nameDiv);
+    nameTd.appendChild(emailDiv);
+
+    var statusTd = document.createElement('td');
+    statusTd.textContent = statusLabel(client.status);
+
+    var countTd = document.createElement('td');
+    countTd.textContent = client.applicationCount;
+
+    var latestTd = document.createElement('td');
+    if (client.latestApplicationBand) {
+      var chip = document.createElement('span');
+      chip.className = 'score-chip';
+      chip.textContent = bandLabel(client.latestApplicationBand) + (client.averageScore != null ? ' · avg ' + client.averageScore : '');
+      latestTd.appendChild(chip);
+    } else {
+      latestTd.textContent = 'No applications yet';
+    }
+
+    var linkTd = document.createElement('td');
+    var link = document.createElement('a');
+    link.className = 'review-link';
+    link.href = 'review.html?clientId=' + encodeURIComponent(client.clientId);
+    link.textContent = 'Review →';
+    linkTd.appendChild(link);
+
+    tr.appendChild(nameTd);
+    tr.appendChild(statusTd);
+    tr.appendChild(countTd);
+    tr.appendChild(latestTd);
+    tr.appendChild(linkTd);
+    return tr;
+  }
+
+  fetch(API_BASE + '/api/clients')
+    .then(function (res) {
+      if (!res.ok) throw new Error('API returned ' + res.status);
+      return res.json();
+    })
+    .then(function (clients) {
+      var tbody = document.getElementById('client-rows');
+      tbody.innerHTML = '';
+      if (clients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No clients on file.</td></tr>';
+      } else {
+        clients.forEach(function (client) {
+          tbody.appendChild(renderRow(client));
+        });
+      }
+      document.getElementById('client-count').textContent = clients.length + (clients.length === 1 ? ' client' : ' clients');
+    })
+    .catch(function (err) {
+      document.getElementById('client-rows').innerHTML = '<tr><td colspan="5">Failed to load clients: ' + err.message + ' (is the API running on ' + API_BASE + '?)</td></tr>';
+      document.getElementById('client-count').textContent = 'error';
+    });
+</script>
 
 </body>
 </html>

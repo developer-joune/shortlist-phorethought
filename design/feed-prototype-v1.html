@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shortlist — feed prototype v1</title>
+<title>Shortlist — your matches</title>
 <style>
   :root {
     --canvas: #f7f4ef;
@@ -205,6 +205,15 @@
     color: var(--text-muted);
   }
 
+  .empty-state {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
   .spec-note {
     max-width: 560px;
     margin: 0 auto 32px;
@@ -221,130 +230,172 @@
 <body>
 
 <div class="spec-note">
-  Prototype v1 — structural reference only. Copy sourced from subcon_brand's tone/voice guide
-  (worked example, note_000). Company/role/skill details are that example's placeholder client (Maria),
-  not real client data. Status stage labels are placeholders pending subcon_qualgate's status model.
-  A11y pass v1 applied (subcon_a11y review, see design/a11y-review-feed-prototype-v1.md): contrast
-  fixes on muted/accent text, h1 greeting, main + role="feed" + posinset/setsize, per-card link labels,
-  hidden avatar initials. Note: aria-posinset/setsize below are still hand-typed (setsize=3) to match
-  this 3-card demo — once wired to real data, derive both from the same array driving the rendered
-  cards/dots, same drift risk the reviewer flagged for the step-tracker's "step X of 4" label.
+  Wired to the live API (localhost:3001) — GET /api/clients/&lt;clientId&gt;, clientId taken from
+  <code>?clientId=</code> or defaulting to <code>maria-torres-2026</code>. Only applications with
+  band !== "reject" are shown (internally-rejected jobs never reach the client). Card copy
+  (qual-line) is the engine's real pass_reason string, not subcon_brand's narrative voice pass —
+  worth a follow-up with subcon_brand/subcon_resume on rewording once resume-tailoring output
+  exists. Step-tracker fill and "step N of 4" label, plus aria-posinset/aria-setsize, are now
+  derived from the same array driving the rendered cards, so the drift risk the a11y reviewer
+  flagged in v1 no longer applies.
 </div>
 
 <main class="feed">
 
   <div class="feed-header">
-    <h1 class="feed-greeting">Hey Maria, here's your week</h1>
-    <p class="stat-strip"><strong>7</strong> applications sent this month · <strong>1</strong> company responded</p>
+    <h1 class="feed-greeting" id="feed-greeting">Loading…</h1>
+    <p class="stat-strip" id="feed-stats"></p>
   </div>
 
-  <div class="card-stream" role="feed" aria-label="Your job matches">
-
-    <!-- Card 1: newly applied -->
-    <article class="card" aria-posinset="1" aria-setsize="3">
-      <div class="card-header">
-        <div class="avatar" aria-hidden="true">M</div>
-        <span class="company-name">Meridian Health</span>
-        <span class="card-timestamp">Today</span>
-      </div>
-      <h2 class="job-title">Senior Data Analyst</h2>
-      <p class="qual-line">
-        Your 5 years in healthcare analytics and the SQL + Tableau combo line up directly with
-        what they listed as must-haves — this wasn't a stretch match, it was a clean one.
-      </p>
-      <div class="meta-chips">
-        <span class="chip">Remote</span>
-        <span class="chip">$95–115k</span>
-        <span class="chip">Full-time</span>
-      </div>
-      <div class="status-row">
-        <span class="status-label">Applied</span>
-        <div class="step-tracker" role="img" aria-label="Application status: Applied, step 1 of 4">
-          <div class="dot filled"></div>
-          <div class="line"></div>
-          <div class="dot"></div>
-          <div class="line"></div>
-          <div class="dot"></div>
-          <div class="line"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <a class="card-action" href="#" aria-label="See full match card — Senior Data Analyst at Meridian Health">See the full match card →</a>
-        <span class="card-footer-meta">Applied Jul 25</span>
-      </div>
-    </article>
-
-    <!-- Card 2: under review -->
-    <article class="card" aria-posinset="2" aria-setsize="3">
-      <div class="card-header">
-        <div class="avatar" aria-hidden="true">C</div>
-        <span class="company-name">Cascade Logistics</span>
-        <span class="card-timestamp">3d ago</span>
-      </div>
-      <h2 class="job-title">Supply Chain Analyst</h2>
-      <p class="qual-line">
-        Your 6 years in supply-chain analytics and the Tableau cert line up directly with what
-        they're asking for.
-      </p>
-      <div class="meta-chips">
-        <span class="chip">Hybrid — Chicago, IL</span>
-        <span class="chip">$88–104k</span>
-      </div>
-      <div class="status-row">
-        <span class="status-label">Under review</span>
-        <div class="step-tracker" role="img" aria-label="Application status: Under review, step 2 of 4">
-          <div class="dot filled"></div>
-          <div class="line filled"></div>
-          <div class="dot filled"></div>
-          <div class="line"></div>
-          <div class="dot"></div>
-          <div class="line"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <a class="card-action" href="#" aria-label="See full match card — Supply Chain Analyst at Cascade Logistics">See the full match card →</a>
-        <span class="card-footer-meta">Applied Jul 22</span>
-      </div>
-    </article>
-
-    <!-- Card 3: interview stage -->
-    <article class="card" aria-posinset="3" aria-setsize="3">
-      <div class="card-header">
-        <div class="avatar" aria-hidden="true">N</div>
-        <span class="company-name">Norwell Insurance</span>
-        <span class="card-timestamp">1w ago</span>
-      </div>
-      <h2 class="job-title">Business Intelligence Analyst</h2>
-      <p class="qual-line">
-        They asked for 4+ years in BI tooling and a claims-adjacent domain background — your
-        history at Meridian covers both directly.
-      </p>
-      <div class="meta-chips">
-        <span class="chip">Remote</span>
-        <span class="chip">$102–120k</span>
-      </div>
-      <div class="status-row">
-        <span class="status-label">Interview</span>
-        <div class="step-tracker" role="img" aria-label="Application status: Interview, step 3 of 4">
-          <div class="dot filled"></div>
-          <div class="line filled"></div>
-          <div class="dot filled"></div>
-          <div class="line filled"></div>
-          <div class="dot filled"></div>
-          <div class="line"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <a class="card-action" href="#" aria-label="See full match card — Business Intelligence Analyst at Norwell Insurance">See the full match card →</a>
-        <span class="card-footer-meta">Applied Jul 17</span>
-      </div>
-    </article>
-
+  <div class="card-stream" role="feed" aria-label="Your job matches" id="card-stream">
   </div>
 </main>
+
+<script>
+  var API_BASE = 'http://localhost:3001';
+  var clientId = new URLSearchParams(window.location.search).get('clientId') || 'maria-torres-2026';
+
+  // application-tracking.schema.json's status enum, grouped into this
+  // card's 4 visual stages. Anything not matched falls back to stage 0
+  // (Applied) rather than crashing on an unrecognized status.
+  var STAGES = [
+    { label: 'Applied', statuses: ['gated_pass', 'drafted', 'applied'] },
+    { label: 'Under review', statuses: ['response_received'] },
+    { label: 'Interview', statuses: ['interview'] },
+    { label: 'Offer', statuses: ['offer'] },
+  ];
+
+  function stageIndexForStatus(status) {
+    for (var i = 0; i < STAGES.length; i++) {
+      if (STAGES[i].statuses.indexOf(status) !== -1) return i;
+    }
+    return 0;
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function relativeTime(isoString) {
+    var then = new Date(isoString);
+    var days = Math.floor((Date.now() - then.getTime()) / 86400000);
+    if (days <= 0) return 'Today';
+    if (days === 1) return '1d ago';
+    if (days < 7) return days + 'd ago';
+    var weeks = Math.floor(days / 7);
+    return weeks === 1 ? '1w ago' : weeks + 'w ago';
+  }
+
+  function formatDate(isoString) {
+    var d = new Date(isoString);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function remoteChip(location) {
+    if (location.remote_policy === 'remote') return 'Remote';
+    var place = location.city && location.region ? location.city + ', ' + location.region : '';
+    if (location.remote_policy === 'hybrid') return 'Hybrid' + (place ? ' — ' + place : '');
+    return place || 'Onsite';
+  }
+
+  function salaryChip(salary) {
+    if (!salary || salary.min == null) return null;
+    var round = function (n) { return Math.round(n / 1000); };
+    return '$' + round(salary.min) + '–' + round(salary.max) + 'k';
+  }
+
+  function buildStepTracker(stageIndex, statusLabel) {
+    var totalSteps = STAGES.length;
+    var tracker = el('div', {
+      class: 'step-tracker',
+      role: 'img',
+      'aria-label': 'Application status: ' + statusLabel + ', step ' + (stageIndex + 1) + ' of ' + totalSteps,
+    });
+    for (var i = 0; i < totalSteps; i++) {
+      tracker.appendChild(el('div', { class: 'dot' + (i <= stageIndex ? ' filled' : '') }));
+      if (i < totalSteps - 1) {
+        tracker.appendChild(el('div', { class: 'line' + (i < stageIndex ? ' filled' : '') }));
+      }
+    }
+    return tracker;
+  }
+
+  function buildCard(app, index, total) {
+    var latestHistory = app.statusHistory[app.statusHistory.length - 1];
+    var stageIndex = stageIndexForStatus(app.status);
+    var stageLabel = STAGES[stageIndex].label;
+    var posting = app.jobPosting.posting;
+    var initial = app.companySnapshot.charAt(0).toUpperCase();
+
+    var chips = [remoteChip(posting.location)];
+    var salary = salaryChip(posting.salary);
+    if (salary) chips.push(salary);
+
+    var card = el('article', { class: 'card', 'aria-posinset': index + 1, 'aria-setsize': total }, [
+      el('div', { class: 'card-header' }, [
+        el('div', { class: 'avatar', 'aria-hidden': 'true', text: initial }),
+        el('span', { class: 'company-name', text: app.companySnapshot }),
+        el('span', { class: 'card-timestamp', text: relativeTime(latestHistory.changed_at) }),
+      ]),
+      el('h2', { class: 'job-title', text: app.jobTitleSnapshot }),
+      el('p', { class: 'qual-line', text: app.passReason || 'Matched against this role\'s requirements.' }),
+      el('div', { class: 'meta-chips' }, chips.map(function (c) { return el('span', { class: 'chip', text: c }); })),
+      el('div', { class: 'status-row' }, [
+        el('span', { class: 'status-label', text: stageLabel }),
+        buildStepTracker(stageIndex, stageLabel),
+      ]),
+      el('div', { class: 'card-footer' }, [
+        el('a', { class: 'card-action', href: '#', 'aria-label': 'See full match card — ' + app.jobTitleSnapshot + ' at ' + app.companySnapshot, text: 'See the full match card →' }),
+        el('span', { class: 'card-footer-meta', text: formatDate(latestHistory.changed_at) }),
+      ]),
+    ]);
+    return card;
+  }
+
+  fetch(API_BASE + '/api/clients/' + encodeURIComponent(clientId))
+    .then(function (res) {
+      if (!res.ok) throw new Error(res.status === 404 ? 'No client found for clientId "' + clientId + '"' : 'API returned ' + res.status);
+      return res.json();
+    })
+    .then(function (client) {
+      var firstName = client.name.split(' ')[0];
+      document.getElementById('feed-greeting').textContent = 'Hey ' + firstName + ", here's your week";
+
+      // Internally-rejected applications never reach the client feed — only
+      // jobs that cleared the qualification gate (or are still pending an
+      // operator's borderline call) are shown.
+      var visible = client.applications.filter(function (a) { return a.band !== 'reject'; });
+
+      var responded = visible.filter(function (a) { return stageIndexForStatus(a.status) > 0; }).length;
+      document.getElementById('feed-stats').innerHTML =
+        '<strong>' + visible.length + '</strong> application' + (visible.length === 1 ? '' : 's') + ' sent this month · ' +
+        '<strong>' + responded + '</strong> ' + (responded === 1 ? 'company' : 'companies') + ' responded';
+
+      var stream = document.getElementById('card-stream');
+      stream.innerHTML = '';
+      if (visible.length === 0) {
+        stream.appendChild(el('p', { class: 'empty-state', text: "No active matches yet — we'll post here as soon as one clears review." }));
+      } else {
+        visible.forEach(function (app, i) {
+          stream.appendChild(buildCard(app, i, visible.length));
+        });
+      }
+    })
+    .catch(function (err) {
+      document.getElementById('feed-greeting').textContent = 'Something went wrong';
+      document.getElementById('feed-stats').textContent = '';
+      document.getElementById('card-stream').appendChild(
+        el('p', { class: 'empty-state', text: err.message + ' (is the API running on ' + API_BASE + '?)' })
+      );
+    });
+</script>
 
 </body>
 </html>

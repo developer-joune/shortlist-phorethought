@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shortlist — review: Senior Data Analyst @ Meridian Health</title>
+<title>Shortlist — client review</title>
 <style>
   :root {
     --canvas: #f7f4ef;
@@ -16,6 +16,7 @@
     --accent-tint: #f5e8d8;
     --track: #ece6d8;
     --pass: #2f7d4f;
+    --fail: #b3432f;
   }
   * { box-sizing: border-box; }
   body {
@@ -61,7 +62,6 @@
   .score-row .bar-track {
     grid-column: 1 / span 3; height: 6px; background: var(--track); border-radius: 999px; margin-top: 4px;
   }
-  .score-row-inner { display: contents; }
   .score-label { color: var(--text-primary); }
   .score-raw { color: var(--text-secondary); text-align: right; }
   .score-pct { text-align: right; font-weight: 600; }
@@ -77,6 +77,8 @@
   @media (max-width: 560px) { .gate-grid { grid-template-columns: 1fr; } }
   .gate-item { font-size: 13px; display: flex; gap: 8px; align-items: baseline; }
   .gate-check { color: var(--pass); font-weight: 700; }
+  .gate-cross { color: var(--fail); font-weight: 700; }
+  .gate-detail { display: block; color: var(--text-secondary); font-size: 12px; }
 
   .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media (max-width: 620px) { .compare-grid { grid-template-columns: 1fr; } }
@@ -86,7 +88,7 @@
   .compare-grid dd { margin: 2px 0 0; font-weight: 500; }
 
   .decision-panel {
-    border: 2px solid var(--border);
+    border: 2px solid var(--border); margin-top: 14px;
   }
   .decision-panel textarea {
     width: 100%; min-height: 80px; font: inherit; font-size: 14px; padding: 10px 12px;
@@ -102,134 +104,257 @@
     border: 1px solid var(--border); cursor: pointer;
   }
   .decision-actions button:disabled { opacity: 0.45; cursor: not-allowed; }
-  #btn-promote { background: var(--accent); color: #2b1c0c; border-color: var(--accent); }
-  #btn-reject { background: var(--surface); color: var(--text-primary); }
+  .btn-promote { background: var(--accent); color: #2b1c0c; border-color: var(--accent); }
+  .btn-reject { background: var(--surface); color: var(--text-primary); }
+
+  .applications-block details {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 20px; margin-bottom: 14px;
+  }
+  .applications-block summary {
+    cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center;
+    gap: 10px; flex-wrap: wrap;
+  }
+  .applications-block summary .job-company { color: var(--text-secondary); font-weight: 400; }
+  .applications-block .app-body { margin-top: 16px; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .skills-list li {
+    font-size: 12px; background: var(--accent-tint); color: var(--accent-text); border-radius: 999px;
+    padding: 2px 10px;
+  }
 </style>
 </head>
 <body>
 
 <main class="page">
-  <a class="back-link" href="index.html">← Back to queue</a>
+  <a class="back-link" href="index.html">← Back to client list</a>
 
-  <div class="header-row">
-    <h1>Senior Data Analyst — Meridian Health</h1>
-    <span class="band-chip">66/100 — Borderline</span>
-  </div>
-  <p class="header-meta">Remote · Chicago, IL preferred · client: Maria Torres</p>
-
-  <div class="panel reason-panel">
-    <p class="panel-label">Why this is borderline</p>
-    <p>Seniority/level fit (40%) and compensation fit (50%) are the weakest components.</p>
-  </div>
-
-  <div class="panel">
-    <p class="panel-label">Full score breakdown</p>
-
-    <div class="score-row">
-      <span class="score-label">Required-skills coverage</span>
-      <span class="score-raw">28/40</span>
-      <span class="score-pct">70%</span>
-      <div class="bar-track"><div class="bar-fill" style="width:70%"></div></div>
-    </div>
-    <div class="score-row">
-      <span class="score-label">Nice-to-have coverage</span>
-      <span class="score-raw">14/20</span>
-      <span class="score-pct">70%</span>
-      <div class="bar-track"><div class="bar-fill" style="width:70%"></div></div>
-    </div>
-    <div class="score-row">
-      <span class="score-label">Seniority/level fit</span>
-      <span class="score-raw">6/15</span>
-      <span class="score-pct">40%</span>
-      <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
-    </div>
-    <div class="score-row">
-      <span class="score-label">Location/remote fit</span>
-      <span class="score-raw">9/10</span>
-      <span class="score-pct">90%</span>
-      <div class="bar-track"><div class="bar-fill" style="width:90%"></div></div>
-    </div>
-    <div class="score-row">
-      <span class="score-label">Compensation fit</span>
-      <span class="score-raw">5/10</span>
-      <span class="score-pct">50%</span>
-      <div class="bar-track"><div class="bar-fill" style="width:50%"></div></div>
-    </div>
-    <div class="score-row">
-      <span class="score-label">Screening-question fit</span>
-      <span class="score-raw">4/5</span>
-      <span class="score-pct">80%</span>
-      <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div>
-    </div>
-
-    <div class="score-total"><span>Total</span><span>66/100</span></div>
-  </div>
-
-  <div class="panel">
-    <p class="panel-label">Hard gates — all passed</p>
-    <div class="gate-grid">
-      <div class="gate-item"><span class="gate-check">✓</span> Excluded company/industry</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Location deal-breaker</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Schedule deal-breaker</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Salary floor</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Work authorization</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Required certification</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Required hard skill present</div>
-      <div class="gate-item"><span class="gate-check">✓</span> Years of experience (within 0.6× tolerance)</div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <p class="panel-label">Job posting &amp; client profile — side by side</p>
-    <div class="compare-grid">
-      <dl>
-        <dt>Required skills</dt>
-        <dd>SQL (4+ yrs)</dd>
-        <dt>Nice-to-have</dt>
-        <dd>Tableau</dd>
-        <dt>Salary range</dt>
-        <dd>$95,000–115,000</dd>
-        <dt>Screening questions</dt>
-        <dd>3 listed</dd>
-      </dl>
-      <dl>
-        <dt>Matched skills</dt>
-        <dd>SQL — 6 yrs ✓ · Healthcare analytics — 5 yrs ✓</dd>
-        <dt>Seniority</dt>
-        <dd>Senior (target)</dd>
-        <dt>Salary floor</dt>
-        <dd>$100,000</dd>
-        <dt>Remote preference / exclusions</dt>
-        <dd>No preference · none triggered</dd>
-      </dl>
-    </div>
-  </div>
-
-  <div class="panel decision-panel">
-    <p class="panel-label">Decision</p>
-    <textarea id="reason" placeholder="Required — why you're promoting or rejecting this one. Logged either way." aria-label="Decision reason (required)"></textarea>
-    <p class="decision-note">Exactly two outcomes — no snooze/defer. A reason is required for either one.</p>
-    <div class="decision-actions">
-      <button type="button" id="btn-promote" disabled>Promote to Qualified</button>
-      <button type="button" id="btn-reject" disabled>Confirm Reject</button>
-    </div>
-  </div>
+  <div id="client-content">Loading…</div>
 </main>
 
 <script>
-  // Enforces schemas/application-tracking.schema.json's borderline_resolution
-  // shape: operator_reason is required for BOTH outcomes (subcon_qualgate
-  // sec8.3), so submit stays disabled until the field is non-empty regardless
-  // of which button gets pressed.
-  var reasonField = document.getElementById('reason');
-  var promoteBtn = document.getElementById('btn-promote');
-  var rejectBtn = document.getElementById('btn-reject');
+  var API_BASE = 'http://localhost:3001';
+  var clientId = new URLSearchParams(window.location.search).get('clientId');
+  var content = document.getElementById('client-content');
 
-  reasonField.addEventListener('input', function () {
-    var hasReason = reasonField.value.trim().length > 0;
-    promoteBtn.disabled = !hasReason;
-    rejectBtn.disabled = !hasReason;
-  });
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') node.textContent = attrs[k];
+      else if (k === 'html') node.innerHTML = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function bandLabel(band) {
+    if (!band) return 'Not scored';
+    return band.charAt(0).toUpperCase() + band.slice(1);
+  }
+
+  function money(amount, currency) {
+    if (amount == null) return null;
+    return '$' + amount.toLocaleString() + (currency && currency !== 'USD' ? ' ' + currency : '');
+  }
+
+  function buildScoreRow(sub) {
+    var pct = sub.pct_of_max;
+    var row = el('div', { class: 'score-row' }, [
+      el('span', { class: 'score-label', text: sub.name.replace(/_/g, ' ') }),
+      el('span', { class: 'score-raw', text: sub.score + '/' + sub.weight }),
+      el('span', { class: 'score-pct', text: pct + '%' }),
+      el('div', { class: 'bar-track' }, [
+        el('div', { class: 'bar-fill', style: 'width:' + pct + '%' }),
+      ]),
+    ]);
+    return row;
+  }
+
+  function buildGateItem(gate) {
+    var passed = gate.passed;
+    var icon = el('span', { class: passed ? 'gate-check' : 'gate-cross', text: passed ? '✓' : '✗' });
+    var label = document.createTextNode(' ' + gate.gate_name.replace(/_/g, ' '));
+    var children = [icon, label];
+    if (!passed && gate.detail) {
+      children.push(el('span', { class: 'gate-detail', text: gate.detail }));
+    }
+    return el('div', { class: 'gate-item' }, children);
+  }
+
+  function buildDecisionPanel(trackingId) {
+    var idSuffix = trackingId.replace(/[^a-zA-Z0-9]/g, '-');
+    var reasonId = 'reason-' + idSuffix;
+    var promoteId = 'promote-' + idSuffix;
+    var rejectId = 'reject-' + idSuffix;
+
+    var panel = el('div', { class: 'panel decision-panel' }, [
+      el('p', { class: 'panel-label', text: 'Decision' }),
+      el('textarea', {
+        id: reasonId,
+        placeholder: 'Required — why you\'re promoting or rejecting this one. Logged either way.',
+        'aria-label': 'Decision reason (required)',
+      }),
+      el('p', { class: 'decision-note', text: 'Exactly two outcomes — no snooze/defer. A reason is required for either one. Not yet wired to a write endpoint (server.js currently only exposes read-only GET routes) — decision buttons are shown for reference but do not submit anywhere yet.' }),
+      el('div', { class: 'decision-actions' }, [
+        el('button', { type: 'button', class: 'btn-promote', id: promoteId, disabled: 'disabled', text: 'Promote to Qualified' }),
+        el('button', { type: 'button', class: 'btn-reject', id: rejectId, disabled: 'disabled', text: 'Confirm Reject' }),
+      ]),
+    ]);
+
+    setTimeout(function () {
+      var reasonField = document.getElementById(reasonId);
+      var promoteBtn = document.getElementById(promoteId);
+      var rejectBtn = document.getElementById(rejectId);
+      reasonField.addEventListener('input', function () {
+        var hasReason = reasonField.value.trim().length > 0;
+        promoteBtn.disabled = !hasReason;
+        rejectBtn.disabled = !hasReason;
+      });
+    }, 0);
+
+    return panel;
+  }
+
+  function buildApplication(app) {
+    var result = app.fullResult;
+    var scoreText = app.totalScore != null ? app.totalScore + '/100' : 'Not scored';
+    var summary = el('summary', {}, [
+      document.createTextNode(app.jobTitleSnapshot + ' '),
+      el('span', { class: 'job-company', text: '— ' + app.companySnapshot }),
+      el('span', { class: 'band-chip', text: bandLabel(app.band) + ' · ' + scoreText }),
+    ]);
+
+    var body = el('div', { class: 'app-body' });
+
+    var reasonText = app.passReason || app.rejectReason;
+    if (reasonText) {
+      body.appendChild(el('div', { class: 'panel reason-panel' }, [
+        el('p', { class: 'panel-label', text: app.band === 'reject' ? 'Why this was rejected' : 'Why this scored the way it did' }),
+        el('p', { text: reasonText }),
+      ]));
+    }
+
+    if (result.sub_scores && result.sub_scores.length) {
+      var scorePanel = el('div', { class: 'panel' }, [
+        el('p', { class: 'panel-label', text: 'Full score breakdown' }),
+      ]);
+      result.sub_scores.forEach(function (sub) { scorePanel.appendChild(buildScoreRow(sub)); });
+      scorePanel.appendChild(el('div', { class: 'score-total' }, [
+        el('span', { text: 'Total' }),
+        el('span', { text: app.totalScore + '/100' }),
+      ]));
+      body.appendChild(scorePanel);
+    }
+
+    if (result.hard_gates && result.hard_gates.length) {
+      var allPassed = result.hard_gates.every(function (g) { return g.passed; });
+      var gatePanel = el('div', { class: 'panel' }, [
+        el('p', { class: 'panel-label', text: 'Hard gates — ' + (allPassed ? 'all passed' : 'one or more failed') }),
+      ]);
+      var gateGrid = el('div', { class: 'gate-grid' });
+      result.hard_gates.forEach(function (gate) { gateGrid.appendChild(buildGateItem(gate)); });
+      gatePanel.appendChild(gateGrid);
+      body.appendChild(gatePanel);
+    }
+
+    if (app.band === 'borderline') {
+      body.appendChild(buildDecisionPanel(app.trackingId));
+    }
+
+    var details = el('details', {}, [summary, body]);
+    return details;
+  }
+
+  fetch(API_BASE + '/api/clients/' + encodeURIComponent(clientId))
+    .then(function (res) {
+      if (!res.ok) throw new Error(res.status === 404 ? 'No client found for clientId "' + clientId + '"' : 'API returned ' + res.status);
+      return res.json();
+    })
+    .then(function (client) {
+      document.title = 'Shortlist — review: ' + client.name;
+      content.innerHTML = '';
+
+      content.appendChild(el('div', { class: 'header-row' }, [
+        el('h1', { text: client.name }),
+        el('span', { class: 'band-chip', text: client.status || 'unknown status' }),
+      ]));
+      content.appendChild(el('p', { class: 'header-meta', text: client.email + ' · client ID: ' + client.clientId }));
+
+      var basics = client.profile.basics;
+      var qualBar = client.profile.qualification_bar;
+      var exclusions = client.profile.exclusions;
+
+      var profilePanel = el('div', { class: 'panel' }, [
+        el('p', { class: 'panel-label', text: 'Profile on file' }),
+        el('div', { class: 'compare-grid' }, [
+          el('dl', {}, [
+            el('dt', { text: 'Target titles' }),
+            el('dd', { text: basics.target_job_titles.join(', ') }),
+            el('dt', { text: 'Location' }),
+            el('dd', { text: basics.location.city + ', ' + basics.location.region }),
+            el('dt', { text: 'Salary floor' }),
+            el('dd', { text: money(basics.salary_floor.min, basics.salary_floor.currency) + '/' + basics.salary_floor.period }),
+            el('dt', { text: 'Work authorization' }),
+            el('dd', { text: basics.work_authorization.status + (basics.work_authorization.sponsorship_needed ? ' (needs sponsorship)' : ', no sponsorship needed') }),
+          ]),
+          el('dl', {}, [
+            el('dt', { text: 'Target seniority' }),
+            el('dd', { text: qualBar.target_seniority }),
+            el('dt', { text: 'Notice period' }),
+            el('dd', { text: basics.notice_period_days + ' days' }),
+            el('dt', { text: 'Skills on file' }),
+            el('dd', {}, [
+              (function () {
+                var list = el('ul', { class: 'skills-list' });
+                client.profile.skills.forEach(function (s) {
+                  list.appendChild(el('li', { text: s.display_name + ' · ' + s.years_experience + 'y' }));
+                });
+                return list;
+              })(),
+            ]),
+          ]),
+        ]),
+      ]);
+      content.appendChild(profilePanel);
+
+      var prefsPanel = el('div', { class: 'panel' }, [
+        el('p', { class: 'panel-label', text: 'Preferences & exclusions' }),
+        el('div', { class: 'compare-grid' }, [
+          el('dl', {}, [
+            el('dt', { text: 'Remote preference' }),
+            el('dd', { text: exclusions.required_remote_policy.replace(/_/g, ' ') }),
+            el('dt', { text: 'Target locations' }),
+            el('dd', { text: basics.target_locations.map(function (l) { return l.city ? l.city + ', ' + l.region : 'remote'; }).join(' · ') }),
+          ]),
+          el('dl', {}, [
+            el('dt', { text: 'Excluded industries' }),
+            el('dd', { text: exclusions.excluded_industries.length ? exclusions.excluded_industries.join(', ') : 'none' }),
+            el('dt', { text: 'Dealbreakers' }),
+            el('dd', { text: exclusions.dealbreakers.length ? exclusions.dealbreakers.map(function (d) { return d.detail; }).join('; ') : 'none' }),
+          ]),
+        ]),
+      ]);
+      content.appendChild(prefsPanel);
+
+      var appsBlock = el('div', { class: 'applications-block' }, [
+        el('p', { class: 'panel-label', text: 'Applications (' + client.applications.length + ')' }),
+      ]);
+      if (client.applications.length === 0) {
+        appsBlock.appendChild(el('p', { text: 'No applications on file for this client yet.' }));
+      } else {
+        client.applications.forEach(function (app) { appsBlock.appendChild(buildApplication(app)); });
+      }
+      content.appendChild(appsBlock);
+    })
+    .catch(function (err) {
+      content.innerHTML = '';
+      content.appendChild(el('div', { class: 'panel reason-panel' }, [
+        el('p', { class: 'panel-label', text: 'Failed to load client' }),
+        el('p', { text: err.message + (clientId ? '' : ' (no ?clientId= given in the URL)') }),
+      ]));
+    });
 </script>
 
 </body>
