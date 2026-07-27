@@ -166,6 +166,29 @@ text:
   in any marketing/consent copy; overstating security measures is its own
   truth-in-advertising exposure if it doesn't match what's actually running.
 
+## 4b. Your Shortlist account login (separate from the platform-account credentials above)
+
+Distinct from the third-party platform credentials described in Section 4a: to give you
+direct visibility into your own match feed, the Operator's own system ("Shortlist") issues
+**you** a login (email + password) to your own account, which you set and control yourself
+— this is not an account the Operator creates or holds on your behalf.
+
+- Your Shortlist account password is **hashed** (never stored or logged in plaintext) at the
+  point you set it. After that point the Operator's systems do not retain your plaintext
+  password and cannot display or recover it — including for the Operator's own staff.
+- Password reset works by emailing you a single-use, time-limited link — never by emailing
+  you your existing password, because after hashing the Operator does not have it in a form
+  that could be sent.
+- This account is separate from any third-party platform account described in Section 4a:
+  logging into Shortlist does not grant access to those platform accounts, and vice versa.
+
+*(Flag for attorney/operator review: this is standard SaaS-account-credential handling and
+is more naturally Privacy Policy / Terms of Service territory than an
+authorization-to-act-on-your-behalf clause — it's included here only as a stopgap because no
+Privacy Policy exists yet (see the note under the title and in Section 8). Once a real
+Privacy Policy is drafted, this content belongs there instead, cross-referenced from here
+rather than duplicated in both places.)*
+
 ## 5. No guarantee of interviews, offers, or employment
 
 Authorizing the Operator to apply on your behalf is a grant of **effort**, not a promise of
@@ -226,3 +249,9 @@ state imposes additional requirements, e.g. e-signature/UETA compliance.)*
   onboarding, not a pre-launch gate) is tracked in `internal-risk-log.md` — that file, not
   this document, is the record of the acknowledged gap-period risk; keep it out of any
   client-facing rendering of this Agreement.
+- **New (2026-07-27, in response to a consult on the real-login build):** Section 4b added
+  to cover client-facing Shortlist account credentials (email + bcrypt-hashed password on
+  the Client table), which Section 4a did not address — 4a is scoped to third-party
+  platform accounts the Operator creates/holds, not the client's own login to Shortlist
+  itself. See `internal-risk-log.md`'s 2026-07-27 entry for the open implementation items
+  (rate limiting, reset-flow security, breach-notification scope) tracked alongside this.

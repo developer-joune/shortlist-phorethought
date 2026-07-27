@@ -9,11 +9,19 @@
 
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const { scoreApplication } = require('../engine/qualification-gate');
 
 const prisma = new PrismaClient();
 const FIXTURES_DIR = path.join(__dirname, '..', 'fixtures');
+
+// Local-dev bootstrap credentials -- not production secrets, just enough to
+// log in and test the auth flow end to end. Override via env if wanted;
+// printed to the console below so nothing here is silently hidden.
+const DEV_OPERATOR_EMAIL = process.env.SEED_OPERATOR_EMAIL || 'operator@shortlist.dev';
+const DEV_OPERATOR_PASSWORD = process.env.SEED_OPERATOR_PASSWORD || 'operator-dev-pass';
+const DEV_CLIENT_PASSWORD = process.env.SEED_CLIENT_PASSWORD || 'maria-dev-pass';
 
 function loadFixture(file) {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, file), 'utf8'));
@@ -27,7 +35,7 @@ function initialStatusFor(band) {
   return 'gated_fail';
 }
 
-async function upsertClient(clientProfile) {
+async function upsertClient(clientProfile, passwordHash) {
   return prisma.client.upsert({
     where: { clientId: clientProfile.client_id },
     update: {
@@ -35,6 +43,7 @@ async function upsertClient(clientProfile) {
       email: clientProfile.basics.email,
       status: clientProfile.status,
       profile: JSON.stringify(clientProfile),
+      passwordHash,
     },
     create: {
       clientId: clientProfile.client_id,
@@ -42,7 +51,16 @@ async function upsertClient(clientProfile) {
       email: clientProfile.basics.email,
       status: clientProfile.status,
       profile: JSON.stringify(clientProfile),
+      passwordHash,
     },
+  });
+}
+
+async function upsertOperator(email, passwordHash) {
+  return prisma.operator.upsert({
+    where: { email },
+    update: { passwordHash },
+    create: { email, passwordHash },
   });
 }
 
@@ -104,14 +122,23 @@ async function main() {
   const meridianHealth = loadFixture('job-posting-meridian-health.json');
   const northgateRetail = loadFixture('job-posting-northgate-retail.json');
 
-  const mariaRow = await upsertClient(maria);
+  const [operatorPasswordHash, clientPasswordHash] = await Promise.all([
+    bcrypt.hash(DEV_OPERATOR_PASSWORD, 10),
+    bcrypt.hash(DEV_CLIENT_PASSWORD, 10),
+  ]);
+
+  const mariaRow = await upsertClient(maria, clientPasswordHash);
   const meridianRow = await upsertJobPosting(meridianHealth);
   const northgateRow = await upsertJobPosting(northgateRetail);
+  await upsertOperator(DEV_OPERATOR_EMAIL, operatorPasswordHash);
 
   await seedApplication(maria, meridianHealth, mariaRow, meridianRow);
   await seedApplication(maria, northgateRetail, mariaRow, northgateRow);
 
   console.log('\nSeed complete.');
+  console.log('\nDev login credentials (local only -- not production secrets):');
+  console.log(`  Operator: ${DEV_OPERATOR_EMAIL} / ${DEV_OPERATOR_PASSWORD}`);
+  console.log(`  Client:   ${maria.basics.email} / ${DEV_CLIENT_PASSWORD}`);
 }
 
 main()

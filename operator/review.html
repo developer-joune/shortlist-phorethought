@@ -111,11 +111,22 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
     padding: 16px 20px; margin-bottom: 14px;
   }
+  /* Borderline applications need an operator decision -- per subcon_ui's
+     review, they must read as action items even collapsed, not just once
+     expanded to the decision panel. */
+  .applications-block details.needs-decision {
+    border: 1px solid var(--accent); border-left: 4px solid var(--accent);
+  }
   .applications-block summary {
     cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center;
     gap: 10px; flex-wrap: wrap;
   }
   .applications-block summary .job-company { color: var(--text-secondary); font-weight: 400; }
+  .applications-block details.needs-decision summary::after {
+    content: 'Needs your decision'; font-size: 11px; font-weight: 700; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--accent-text); background: var(--accent-tint);
+    border-radius: 999px; padding: 3px 10px; margin-left: auto;
+  }
   .applications-block .app-body { margin-top: 16px; }
   .skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
   .skills-list li {
@@ -128,6 +139,7 @@
 
 <main class="page">
   <a class="back-link" href="index.html">← Back to client list</a>
+  <a class="back-link" href="#" id="sign-out-link" style="float:right;">Sign out</a>
 
   <div id="client-content">Loading…</div>
 </main>
@@ -136,6 +148,12 @@
   var API_BASE = 'http://localhost:3001';
   var clientId = new URLSearchParams(window.location.search).get('clientId');
   var content = document.getElementById('client-content');
+
+  document.getElementById('sign-out-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch(API_BASE + '/api/auth/operator/logout', { method: 'POST', credentials: 'include' })
+      .then(function () { window.location.href = 'login.html'; });
+  });
 
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
@@ -217,7 +235,60 @@
     return panel;
   }
 
-  function buildApplication(app) {
+  // Per subcon_ui's review of 9f49565: the per-application view had score
+  // bars/gates with nothing to compare them against -- this restores the
+  // original wireframe's side-by-side job-requirements-vs-client-profile
+  // intent, scoped to this one application's job posting.
+  function buildCompareGrid(app, clientProfile) {
+    var posting = app.jobPosting.posting;
+    var req = posting.requirements || {};
+    var mustHave = req.must_have_skills || [];
+    var niceToHave = posting.nice_to_have_skills || [];
+    var skillById = {};
+    (clientProfile.skills || []).forEach(function (s) { skillById[s.skill_id] = s; });
+
+    var matchedText = mustHave.length
+      ? mustHave.map(function (s) {
+          var owned = skillById[s.skill_id];
+          return s.display_name + (owned ? ' — ' + owned.years_experience + ' yrs ✓' : ' — not on file ✗');
+        }).join(' · ')
+      : 'No must-have skills listed';
+
+    var salary = posting.salary;
+    var salaryText = salary ? '$' + salary.min.toLocaleString() + '–' + salary.max.toLocaleString() + '/' + salary.period : 'Not listed';
+    var floor = clientProfile.basics.salary_floor;
+    var floorText = floor ? '$' + floor.min.toLocaleString() + '/' + floor.period : 'Not set';
+
+    var exclusions = clientProfile.exclusions || {};
+
+    return el('div', { class: 'panel' }, [
+      el('p', { class: 'panel-label', text: 'Job posting & client profile — side by side' }),
+      el('div', { class: 'compare-grid' }, [
+        el('dl', {}, [
+          el('dt', { text: 'Required skills' }),
+          el('dd', { text: mustHave.length ? mustHave.map(function (s) { return s.display_name + (s.min_years ? ' (' + s.min_years + '+ yrs)' : ''); }).join(', ') : 'None listed' }),
+          el('dt', { text: 'Nice-to-have' }),
+          el('dd', { text: niceToHave.length ? niceToHave.map(function (s) { return s.display_name; }).join(', ') : 'None listed' }),
+          el('dt', { text: 'Salary range' }),
+          el('dd', { text: salaryText }),
+          el('dt', { text: 'Screening questions' }),
+          el('dd', { text: (posting.screening_questions || []).length + ' listed' }),
+        ]),
+        el('dl', {}, [
+          el('dt', { text: 'Matched skills' }),
+          el('dd', { text: matchedText }),
+          el('dt', { text: 'Seniority' }),
+          el('dd', { text: (posting.seniority_level || 'not listed') + ' posting vs ' + (clientProfile.qualification_bar.target_seniority || 'not set') + ' target' }),
+          el('dt', { text: 'Salary floor' }),
+          el('dd', { text: floorText }),
+          el('dt', { text: 'Remote preference / exclusions' }),
+          el('dd', { text: (exclusions.required_remote_policy || 'no preference').replace(/_/g, ' ') + ' · ' + ((exclusions.excluded_industries || []).length ? exclusions.excluded_industries.join(', ') + ' excluded' : 'none triggered') }),
+        ]),
+      ]),
+    ]);
+  }
+
+  function buildApplication(app, clientProfile) {
     var result = app.fullResult;
     var scoreText = app.totalScore != null ? app.totalScore + '/100' : 'Not scored';
     var summary = el('summary', {}, [
@@ -259,16 +330,19 @@
       body.appendChild(gatePanel);
     }
 
+    body.appendChild(buildCompareGrid(app, clientProfile));
+
     if (app.band === 'borderline') {
       body.appendChild(buildDecisionPanel(app.trackingId));
     }
 
-    var details = el('details', {}, [summary, body]);
+    var details = el('details', { class: app.band === 'borderline' ? 'needs-decision' : '' }, [summary, body]);
     return details;
   }
 
-  fetch(API_BASE + '/api/clients/' + encodeURIComponent(clientId))
+  fetch(API_BASE + '/api/clients/' + encodeURIComponent(clientId), { credentials: 'include' })
     .then(function (res) {
+      if (res.status === 401) { window.location.href = 'login.html'; return Promise.reject(new Error('redirecting')); }
       if (!res.ok) throw new Error(res.status === 404 ? 'No client found for clientId "' + clientId + '"' : 'API returned ' + res.status);
       return res.json();
     })
@@ -344,7 +418,7 @@
       if (client.applications.length === 0) {
         appsBlock.appendChild(el('p', { text: 'No applications on file for this client yet.' }));
       } else {
-        client.applications.forEach(function (app) { appsBlock.appendChild(buildApplication(app)); });
+        client.applications.forEach(function (app) { appsBlock.appendChild(buildApplication(app, client.profile)); });
       }
       content.appendChild(appsBlock);
     })

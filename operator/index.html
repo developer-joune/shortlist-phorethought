@@ -66,6 +66,7 @@
     Every client currently on file, with their latest application status and how many jobs
     they've been evaluated against. Open a client to see their full application history,
     including the score/reason behind every job.
+    <a class="review-link" href="#" id="sign-out-link" style="float:right;">Sign out</a>
   </p>
 
   <table>
@@ -90,6 +91,12 @@
 
 <script>
   var API_BASE = 'http://localhost:3001';
+
+  document.getElementById('sign-out-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch(API_BASE + '/api/auth/operator/logout', { method: 'POST', credentials: 'include' })
+      .then(function () { window.location.href = 'login.html'; });
+  });
 
   function bandLabel(band) {
     if (!band) return '—';
@@ -145,8 +152,9 @@
     return tr;
   }
 
-  fetch(API_BASE + '/api/clients')
+  fetch(API_BASE + '/api/clients', { credentials: 'include' })
     .then(function (res) {
+      if (res.status === 401) { window.location.href = 'login.html'; return Promise.reject(new Error('redirecting')); }
       if (!res.ok) throw new Error('API returned ' + res.status);
       return res.json();
     })

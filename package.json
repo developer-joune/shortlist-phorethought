@@ -23,8 +23,13 @@
   "homepage": "https://github.com/developer-joune/shortlist-phorethought#readme",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.1",
+    "express-session": "^1.19.0",
+    "nodemailer": "^9.0.3"
   },
   "devDependencies": {
     "prisma": "^5.22.0"

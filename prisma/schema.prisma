@@ -36,14 +36,27 @@ datasource db {
 
 model Client {
   id           String        @id @default(cuid())
-  clientId     String        @unique // client-profile.schema.json's client_id (e.g. "maria-torres-2026")
+  clientId     String        @unique // client-profile.schema.json's client_id (e.g. "maria-torres-2026") -- stays the authoritative FK everywhere (skills/work_history/application-tracking); email is the login identifier only, never a shadow key
   name         String
-  email        String
+  email        String        @unique // promoted to unique for login; was plain String before auth existed. Keep in sync with profile.basics.email on every real (non-seed) profile edit, same as seed.js's upsertClient already does, so it can't drift once it's auth-bearing
+  passwordHash String? // nullable -- seeded/legacy clients have no password until one is set; same nullability pattern as resumeVersionUsed/totalScore/dateApplied (data that legitimately doesn't exist yet)
   status       String? // client-profile.schema.json's top-level status enum (intake_pending/active/paused/landed/cancelled), promoted per subcon_dataschema's review -- cheap dashboard filter, same reasoning as Application.status/band
   profile      String // full client-profile.schema.json document, JSON.stringify()'d
   applications Application[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+}
+
+// Operator login. Realistically one row for now, but a real table rather
+// than a hardcoded credential, per subcon_dataschema's review -- includes
+// updatedAt (not just createdAt) so a password rotation leaves a trace,
+// matching Client's existing pattern.
+model Operator {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model JobPosting {
