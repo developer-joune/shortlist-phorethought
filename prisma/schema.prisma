@@ -95,6 +95,14 @@ model Application {
   // Promoted from qualification_result for direct querying/sorting.
   totalScore   Float? // null when hard-gate rejected (no score computed)
   band         String // "qualified" | "borderline" | "reject"
+  // Engine-authored until a borderline application is resolved (POST
+  // /api/applications/:trackingId/decision), at which point these get
+  // overwritten with the operator's own decision reason -- a deliberate
+  // exception to this section's usual promoted-column-mirrors-JSON rule,
+  // since the client-facing reason after a human decision should be that
+  // decision's actual reasoning, not the engine's stale pre-decision
+  // hedge still sitting in fullResult.reason. Caught by subcon_dataschema's
+  // review of b4b4d7e.
   passReason   String?
   rejectReason String?
 
