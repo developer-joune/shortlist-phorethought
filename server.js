@@ -200,6 +200,16 @@ app.post('/api/preview', previewRateLimiter, async (req, res) => {
           : [],
         salary_floor: body.salaryFloor ? { min: Number(body.salaryFloor), currency: 'USD', period: 'year' } : undefined,
       },
+      // Without this, scoreSeniorityFit() can't compare and falls back to a
+      // full-max neutral score (15/15) for every preview call regardless of
+      // actual fit -- an artificially HIGH score, not a conservative one.
+      // Caught by subcon_qualgate's review: collecting this one real field
+      // is the fix, not adjusting the engine's fallback (that's a separate,
+      // broader question left to them). Left undefined (not 'unspecified',
+      // a real enum value with its own ordinal position) if the visitor
+      // skips the field, so the existing neutral-fallback path is an
+      // honest "we don't know," not a mislabeled comparison.
+      qualification_bar: body.targetSeniority ? { target_seniority: body.targetSeniority } : undefined,
       skills: skills
         .filter((s) => s && s.skill_id)
         .map((s) => ({ skill_id: s.skill_id, years_experience: Number(s.years_experience) || 0 })),

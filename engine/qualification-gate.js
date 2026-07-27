@@ -203,8 +203,21 @@ function scoreCompensationFit(clientProfile, jobPosting) {
 
 function scoreScreeningCompatibility(clientProfile, jobPosting) {
   const questions = jobPosting.screening_questions || [];
-  if (questions.length === 0) return { score: 5, max: 5 };
-  const answerCategories = new Set((clientProfile.screening_answers || []).map((a) => a.question_category));
+  if (questions.length === 0) return { score: 5, max: 5, neutral: true };
+  const answers = clientProfile.screening_answers || [];
+  // Zero answers on file is "unmeasured," not "measured and bad" -- same
+  // "silence isn't a strike" principle as compensation_fit's unlisted-salary
+  // case (sec2 component 5). Only reached when there truly are zero
+  // answers to check against; a client with some answers that just don't
+  // match this job's specific categories still scores proportionally below,
+  // which is a real signal, not a missing-data case. Caught by
+  // subcon_qualgate's review of the /api/preview endpoint: without this
+  // guard, an anonymous preview call (which deliberately omits
+  // screening_answers) always scored 0/5 here, which the reason-picker
+  // below could then present as a fabricated-looking "weak screening fit"
+  // to a visitor who was never even asked a screening question.
+  if (answers.length === 0) return { score: 3, max: 5, neutral: true };
+  const answerCategories = new Set(answers.map((a) => a.question_category));
   const matched = questions.filter((q) => answerCategories.has(q.question_category)).length;
   return { score: Math.round((matched / questions.length) * 5 * 10) / 10, max: 5 };
 }
@@ -224,8 +237,14 @@ function labelFor(name) {
 
 function computeSubScores(clientProfile, jobPosting) {
   return SUB_SCORE_DEFINITIONS.map((def) => {
-    const { score, max } = def.compute(clientProfile, jobPosting);
-    return { name: def.name, weight: def.weight, score, pct_of_max: Math.round((score / max) * 1000) / 10 };
+    const { score, max, neutral } = def.compute(clientProfile, jobPosting);
+    // neutral marks "unmeasured" (e.g. no screening_answers at all, no
+    // salary listed) as distinct from a real low score of the same value --
+    // buildReasonFromSubScores below uses this to keep unmeasured
+    // components out of the "here's your weakest fit" reason text, so a
+    // visitor never gets told they're weak on something that was never
+    // actually assessed.
+    return { name: def.name, weight: def.weight, score, pct_of_max: Math.round((score / max) * 1000) / 10, neutral: !!neutral };
   });
 }
 
@@ -249,9 +268,13 @@ function buildReasonFromGateFailure(failedGate) {
 
 function buildReasonFromSubScores(subScores, band) {
   const byPctDesc = [...subScores].sort((a, b) => b.pct_of_max - a.pct_of_max);
-  const byPctAsc = [...subScores].sort((a, b) => a.pct_of_max - b.pct_of_max);
-
-  const lowestTwo = byPctAsc.slice(0, 2);
+  // Neutral (unmeasured) components never get presented as a weakness --
+  // per subcon_qualgate's review, a component scored neutral because the
+  // data to measure it was never collected (e.g. no screening_answers on
+  // an anonymous preview) isn't a real weak fit, and picking it here would
+  // read as a fabricated reason to whoever sees it.
+  const measuredAsc = [...subScores].filter((s) => !s.neutral).sort((a, b) => a.pct_of_max - b.pct_of_max);
+  const lowestTwo = measuredAsc.slice(0, 2);
   const rejectReason = `Weakest fit on ${lowestTwo.map((s) => `${labelFor(s.name)} (${s.pct_of_max}%)`).join(' and ')}.`;
 
   let passComponents = byPctDesc.filter((s) => s.pct_of_max >= 80).slice(0, 2);

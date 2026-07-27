@@ -94,8 +94,10 @@
   <h1>Your first shortlist</h1>
   <p class="intro">
     A fast first pass, not the full gate — tell us a few things and we'll check what you'd
-    actually match against right now. <strong>Full accounts also check exclusions and
-    screening fit in more depth</strong>, so this pass is a real result, just a lighter one.
+    actually match against right now. <strong>Full accounts also check company-specific
+    exclusions and screening fit in more depth</strong>, so this pass is a real result, just
+    a lighter one. We run this against live job data to build your result — nothing you
+    enter here is saved; it exists only long enough to generate this page, then it's gone.
   </p>
 
   <form id="preview-form">
@@ -114,6 +116,20 @@
         <div>
           <label for="titles">Target job title(s)</label>
           <input type="text" id="titles" placeholder="e.g. Data Analyst">
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label for="seniority">Target level</label>
+          <select id="seniority">
+            <option value="">Prefer not to say</option>
+            <option value="entry">Entry</option>
+            <option value="mid">Mid</option>
+            <option value="senior">Senior</option>
+            <option value="staff">Staff</option>
+            <option value="principal">Principal</option>
+            <option value="exec">Executive</option>
+          </select>
         </div>
       </div>
     </fieldset>
@@ -344,6 +360,7 @@
       skills: selectedSkills,
       yearsExperience: Number(document.getElementById('years').value) || 0,
       targetJobTitles: document.getElementById('titles').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+      targetSeniority: document.getElementById('seniority').value,
       city: document.getElementById('city').value.trim(),
       region: document.getElementById('region').value.trim(),
       remoteOk: document.getElementById('remote').value,
