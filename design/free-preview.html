@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortlist — your first shortlist</title>
+<style>
+  :root {
+    --canvas: #f7f4ef;
+    --surface: #ffffff;
+    --border: #e8e2d8;
+    --text-primary: #211d17;
+    --text-secondary: #6b6455;
+    --text-muted: #6b6455;
+    --accent: #c07830;
+    --accent-text: #a3651f;
+    --accent-tint: #f5e8d8;
+    --accent-tint-border: #e0bf8f;
+    --track: #ece6d8;
+    --fail: #b3432f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  .page { max-width: 620px; margin: 0 auto; padding: 40px 16px 72px; }
+  .back-link { display: inline-block; font-size: 13px; font-weight: 600; color: var(--text-secondary); text-decoration: none; margin-bottom: 20px; }
+  .back-link:hover { color: var(--accent-text); }
+
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); margin: 0 0 8px; }
+  h1 { font-size: 26px; font-weight: 700; margin: 0 0 10px; }
+  .intro { font-size: 15px; color: var(--text-secondary); margin: 0 0 28px; max-width: 520px; }
+  .intro strong { color: var(--text-primary); }
+
+  form { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+  fieldset { border: none; margin: 0 0 24px; padding: 0; }
+  legend { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; padding: 0; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 0 0 6px; }
+  input[type="text"], input[type="number"], select {
+    width: 100%; font: inherit; font-size: 14px; padding: 10px 12px; margin-bottom: 14px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--canvas); color: var(--text-primary);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+  .skill-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-bottom: 14px; }
+  @media (max-width: 480px) { .skill-groups { grid-template-columns: 1fr; } }
+  .skill-group-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: capitalize; margin: 10px 0 4px; }
+  .skill-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 13px; }
+  .skill-row input[type="number"] { width: 56px; margin: 0; padding: 4px 6px; font-size: 12px; display: none; }
+  .skill-row.checked input[type="number"] { display: inline-block; }
+  .skill-row label { margin: 0; font-weight: 400; color: var(--text-primary); flex: 1; }
+
+  .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 8px; }
+  .checkbox-row label { margin: 0; font-weight: 400; }
+
+  button[type="submit"] {
+    width: 100%; font: inherit; font-size: 14px; font-weight: 700; border-radius: 999px; padding: 12px 20px;
+    border: 1px solid var(--accent); background: var(--accent); color: #2b1c0c; cursor: pointer;
+  }
+  button[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+  .form-error { color: var(--fail); font-size: 13px; margin: 0 0 14px; display: none; }
+  .form-error.visible { display: block; }
+
+  /* Results -- same card language as the real feed */
+  .card-stream { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(33, 29, 23, 0.04); }
+  .card-header { display: flex; align-items: center; margin-bottom: 12px; }
+  .company-name { font-size: 14px; font-weight: 600; }
+  .band-chip { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--accent-text); background: var(--accent-tint); border-radius: 999px; padding: 3px 10px; }
+  .job-title { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+  .qual-line { border-left: 3px solid var(--accent-tint-border); background: var(--accent-tint); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 14px; color: #4a3d29; margin: 0 0 12px; }
+  .meta-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 12px; color: var(--text-secondary); background: var(--canvas); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; }
+
+  .cta-panel { text-align: center; margin-top: 28px; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+  .cta-panel p { font-size: 14px; color: var(--text-secondary); margin: 0 0 14px; }
+  .cta-panel a.btn { display: inline-block; font-size: 14px; font-weight: 700; border-radius: 999px; padding: 12px 24px; background: var(--accent); color: #2b1c0c; text-decoration: none; }
+
+  .fast-pass-note { font-size: 12px; color: var(--text-muted); margin-top: 18px; text-align: center; }
+</style>
+</head>
+<body>
+
+<main class="page">
+  <a class="back-link" href="/">← Back</a>
+
+  <p class="eyebrow">Free · no account needed</p>
+  <h1>Your first shortlist</h1>
+  <p class="intro">
+    A fast first pass, not the full gate — tell us a few things and we'll check what you'd
+    actually match against right now. <strong>Full accounts also check exclusions and
+    screening fit in more depth</strong>, so this pass is a real result, just a lighter one.
+  </p>
+
+  <form id="preview-form">
+    <fieldset>
+      <legend>Skills</legend>
+      <div class="skill-groups" id="skill-groups"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Experience</legend>
+      <div class="field-row">
+        <div>
+          <label for="years">Years of relevant experience</label>
+          <input type="number" id="years" min="0" max="50" value="0">
+        </div>
+        <div>
+          <label for="titles">Target job title(s)</label>
+          <input type="text" id="titles" placeholder="e.g. Data Analyst">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Location &amp; salary</legend>
+      <div class="field-row">
+        <div>
+          <label for="city">City</label>
+          <input type="text" id="city" placeholder="e.g. Chicago">
+        </div>
+        <div>
+          <label for="region">State/region</label>
+          <input type="text" id="region" placeholder="e.g. IL">
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label for="remote">Remote preference</label>
+          <select id="remote">
+            <option value="no_preference">No preference</option>
+            <option value="remote">Remote only</option>
+          </select>
+        </div>
+        <div>
+          <label for="salary">Salary floor (USD/year)</label>
+          <input type="number" id="salary" min="0" step="1000" placeholder="e.g. 100000">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Dealbreakers</legend>
+      <label for="excluded">Industries to exclude</label>
+      <input type="text" id="excluded" placeholder="e.g. Tobacco (comma-separated)">
+      <div class="checkbox-row">
+        <input type="checkbox" id="no-weekends">
+        <label for="no-weekends">Not available for weekend or on-call work</label>
+      </div>
+    </fieldset>
+
+    <p class="form-error" id="form-error" role="alert"></p>
+    <button type="submit" id="submit-btn">See your first matches</button>
+  </form>
+
+  <div id="results"></div>
+  <p class="fast-pass-note" id="fast-pass-note" style="display:none;">
+    This checked 3 postings we're actively tracking right now — a real account gets ongoing
+    coverage, not a one-time check.
+  </p>
+</main>
+
+<script>
+  var API_BASE = window.location.origin;
+
+  var SKILLS = [
+    {"id":"project-management","name":"Project Management","cat":"hard skill"},
+    {"id":"data-analysis","name":"Data Analysis","cat":"hard skill"},
+    {"id":"financial-modeling","name":"Financial Modeling","cat":"hard skill"},
+    {"id":"copywriting","name":"Copywriting","cat":"hard skill"},
+    {"id":"seo","name":"SEO","cat":"hard skill"},
+    {"id":"sales","name":"Sales","cat":"hard skill"},
+    {"id":"recruiting","name":"Recruiting","cat":"hard skill"},
+    {"id":"accounting","name":"Accounting","cat":"hard skill"},
+    {"id":"ux-design","name":"UX Design","cat":"hard skill"},
+    {"id":"graphic-design","name":"Graphic Design","cat":"hard skill"},
+    {"id":"growth-marketing","name":"Growth Marketing","cat":"hard skill"},
+    {"id":"scrum","name":"Scrum","cat":"hard skill"},
+    {"id":"team-leadership","name":"Team Leadership","cat":"hard skill"},
+    {"id":"healthcare-analytics","name":"Healthcare Analytics","cat":"hard skill"},
+    {"id":"excel","name":"Excel","cat":"tool or software"},
+    {"id":"salesforce","name":"Salesforce","cat":"tool or software"},
+    {"id":"hubspot","name":"HubSpot","cat":"tool or software"},
+    {"id":"google-analytics","name":"Google Analytics","cat":"tool or software"},
+    {"id":"figma","name":"Figma","cat":"tool or software"},
+    {"id":"jira","name":"Jira","cat":"tool or software"},
+    {"id":"quickbooks","name":"QuickBooks","cat":"tool or software"},
+    {"id":"tableau","name":"Tableau","cat":"tool or software"},
+    {"id":"powerpoint","name":"PowerPoint","cat":"tool or software"},
+    {"id":"sql","name":"SQL","cat":"tool or software"},
+    {"id":"pmp","name":"PMP","cat":"certification"},
+    {"id":"aws-certified-solutions-architect","name":"AWS Certified Solutions Architect","cat":"certification"},
+    {"id":"cpa","name":"CPA","cat":"certification"},
+    {"id":"six-sigma-green-belt","name":"Six Sigma Green Belt","cat":"certification"},
+    {"id":"shrm-cp","name":"SHRM-CP","cat":"certification"},
+    {"id":"cross-functional-collaboration","name":"Cross-Functional Collaboration","cat":"soft skill"},
+    {"id":"client-communication","name":"Client Communication","cat":"soft skill"},
+    {"id":"negotiation","name":"Negotiation","cat":"soft skill"},
+    {"id":"spanish","name":"Spanish","cat":"language"},
+    {"id":"mandarin","name":"Mandarin","cat":"language"},
+    {"id":"french","name":"French","cat":"language"}
+  ];
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  // Render skills grouped by category, each with a hidden years-input that
+  // appears once checked.
+  var groups = {};
+  SKILLS.forEach(function (s) { (groups[s.cat] = groups[s.cat] || []).push(s); });
+  var skillGroupsEl = document.getElementById('skill-groups');
+  Object.keys(groups).forEach(function (cat) {
+    var col = el('div', {});
+    col.appendChild(el('div', { class: 'skill-group-label', text: cat }));
+    groups[cat].forEach(function (s) {
+      var checkboxId = 'skill-' + s.id;
+      var yearsId = 'years-' + s.id;
+      var row = el('div', { class: 'skill-row', id: 'row-' + s.id }, [
+        el('input', { type: 'checkbox', id: checkboxId, value: s.id }),
+        el('label', { for: checkboxId, text: s.name }),
+        el('input', { type: 'number', id: yearsId, min: '0', max: '40', value: '1', 'aria-label': s.name + ' years experience' }),
+      ]);
+      col.appendChild(row);
+    });
+    skillGroupsEl.appendChild(col);
+  });
+  skillGroupsEl.addEventListener('change', function (e) {
+    if (e.target.type !== 'checkbox') return;
+    document.getElementById('row-' + e.target.value).classList.toggle('checked', e.target.checked);
+  });
+
+  var form = document.getElementById('preview-form');
+  var errorEl = document.getElementById('form-error');
+  var submitBtn = document.getElementById('submit-btn');
+  var resultsEl = document.getElementById('results');
+  var fastPassNote = document.getElementById('fast-pass-note');
+  var submitting = false;
+
+  // Number inputs here have pre-filled defaults (years=0, per-skill years=1)
+  // so an unedited field still submits something sensible. Without this,
+  // typing into a pre-filled field APPENDS instead of replacing (e.g.
+  // clicking into "0" and typing "7" produces "70", which silently fails
+  // native max-range validation and blocks the form's submit event from
+  // firing at all -- a real, reproduced bug, not hypothetical). Selecting
+  // the existing text on focus makes typing replace it instead, which is
+  // both the fix and standard behavior for a number field with a default.
+  form.addEventListener('focusin', function (e) {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'number') e.target.select();
+  });
+
+  // Defense in depth: if a field ever fails native constraint validation
+  // for some other reason, surface it visibly instead of a silent no-op --
+  // the browser's native validation UI is easy to miss and doesn't get
+  // announced the same way a role="alert" element does.
+  form.addEventListener('invalid', function (e) {
+    e.preventDefault();
+    errorEl.textContent = 'One of the fields has an invalid value -- check the highlighted field and try again.';
+    errorEl.classList.add('visible');
+  }, true);
+
+  function remoteChip(location) {
+    if (location.remote_policy === 'remote') return 'Remote';
+    var place = location.city && location.region ? location.city + ', ' + location.region : '';
+    if (location.remote_policy === 'hybrid') return 'Hybrid' + (place ? ' — ' + place : '');
+    return place || 'Onsite';
+  }
+
+  function salaryChip(salary) {
+    if (!salary || salary.min == null) return null;
+    var round = function (n) { return Math.round(n / 1000); };
+    return '$' + round(salary.min) + '–' + round(salary.max) + 'k';
+  }
+
+  function bandLabel(band) { return band.charAt(0).toUpperCase() + band.slice(1); }
+
+  function renderResults(matches) {
+    resultsEl.innerHTML = '';
+    if (matches.length === 0) {
+      resultsEl.appendChild(el('div', { class: 'cta-panel' }, [
+        el('p', { text: "No strong matches from what we're actively tracking right now — that's an honest result from a small, fast pass, not a dead end. A real account gets ongoing coverage as new postings come in, not a one-time check." }),
+        el('a', { class: 'btn', href: '/design/login.html', text: 'Sign in to keep watching →' }),
+      ]));
+      fastPassNote.style.display = 'block';
+      return;
+    }
+
+    var stream = el('div', { class: 'card-stream' });
+    matches.forEach(function (m) {
+      var chips = [remoteChip(m.location)];
+      var sal = salaryChip(m.salary);
+      if (sal) chips.push(sal);
+      stream.appendChild(el('article', { class: 'card' }, [
+        el('div', { class: 'card-header' }, [
+          el('span', { class: 'company-name', text: m.companyName }),
+          el('span', { class: 'band-chip', text: bandLabel(m.band) + ' · ' + m.totalScore + '/100' }),
+        ]),
+        el('h2', { class: 'job-title', text: m.jobTitle }),
+        el('p', { class: 'qual-line', text: m.reason }),
+        el('div', { class: 'meta-chips' }, chips.map(function (c) { return el('span', { class: 'chip', text: c }); })),
+      ]));
+    });
+    resultsEl.appendChild(stream);
+    resultsEl.appendChild(el('div', { class: 'cta-panel' }, [
+      el('p', { text: 'Sign in to save these matches and get ongoing coverage as new postings come in.' }),
+      el('a', { class: 'btn', href: '/design/login.html', text: 'Sign in to save these →' }),
+    ]));
+    fastPassNote.style.display = 'block';
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (submitting) return;
+
+    var selectedSkills = SKILLS
+      .filter(function (s) { return document.getElementById('skill-' + s.id).checked; })
+      .map(function (s) { return { skill_id: s.id, years_experience: Number(document.getElementById('years-' + s.id).value) || 0 }; });
+
+    errorEl.classList.remove('visible');
+    if (selectedSkills.length === 0) {
+      errorEl.textContent = 'Pick at least one skill.';
+      errorEl.classList.add('visible');
+      return;
+    }
+
+    submitting = true;
+    submitBtn.setAttribute('aria-disabled', 'true');
+    submitBtn.textContent = 'Checking…';
+
+    var payload = {
+      skills: selectedSkills,
+      yearsExperience: Number(document.getElementById('years').value) || 0,
+      targetJobTitles: document.getElementById('titles').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+      city: document.getElementById('city').value.trim(),
+      region: document.getElementById('region').value.trim(),
+      remoteOk: document.getElementById('remote').value,
+      salaryFloor: document.getElementById('salary').value,
+      excludedIndustries: document.getElementById('excluded').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+      noWeekends: document.getElementById('no-weekends').checked,
+    };
+
+    fetch(API_BASE + '/api/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
+      .then(function (result) {
+        if (!result.ok) throw new Error(result.body.error || 'Something went wrong.');
+        renderResults(result.body.matches);
+      })
+      .catch(function (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.add('visible');
+      })
+      .finally(function () {
+        submitting = false;
+        submitBtn.removeAttribute('aria-disabled');
+        submitBtn.textContent = 'See your first matches';
+      });
+  });
+</script>
+
+</body>
+</html>

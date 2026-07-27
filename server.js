@@ -19,6 +19,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
+const { scoreApplication } = require('./engine/qualification-gate');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -151,6 +152,96 @@ app.get('/api/auth/client/session', async (req, res) => {
   const client = await prisma.client.findUnique({ where: { clientId: req.session.clientId } });
   if (!client) return res.json({ authenticated: false });
   res.json({ authenticated: true, name: client.name, clientId: client.clientId });
+});
+
+// Same throttling reasoning as loginRateLimiter -- this is a public,
+// unauthenticated endpoint that runs real computation (the qualification
+// engine, once per stored job posting), so it needs its own limit
+// independent of the login endpoints.
+const previewRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many preview requests. Try again later.' },
+});
+
+// POST /api/preview -- the "tier zero" ephemeral engine run (onboarding-flow
+// consult, design/onboarding-flow-alternatives-v1.md's reconciled tier-zero
+// shape). Public, no login wall, nothing persisted to the database -- runs
+// the real qualification engine against the real stored job postings using
+// a trimmed intake, and returns the results directly in the response.
+//
+// The trimmed intake deliberately omits screening_answers (deferred to a
+// real signup, per the reconciliation) but does collect one field the
+// consult doc didn't call out explicitly: "years of experience". Without
+// it, computeTotalYears() reads an empty work_history as 0 years, which
+// would hard-gate-reject almost every visitor on hard gate 8 regardless of
+// real skill fit -- not a hypothetical, this was caught by actually reading
+// engine/qualification-gate.js before building against it, not assumed.
+app.post('/api/preview', previewRateLimiter, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const skills = Array.isArray(body.skills) ? body.skills : [];
+    if (skills.length === 0) {
+      return res.status(400).json({ error: 'At least one skill is required.' });
+    }
+
+    const yearsExperience = Number(body.yearsExperience) || 0;
+    const now = new Date();
+    const startDate = new Date(now.getTime());
+    startDate.setFullYear(startDate.getFullYear() - Math.max(0, yearsExperience));
+
+    const previewProfile = {
+      basics: {
+        target_job_titles: Array.isArray(body.targetJobTitles) ? body.targetJobTitles : [],
+        target_locations: body.city || body.remoteOk
+          ? [{ city: body.city || undefined, region: body.region || undefined, remote_ok: body.remoteOk || 'no_preference' }]
+          : [],
+        salary_floor: body.salaryFloor ? { min: Number(body.salaryFloor), currency: 'USD', period: 'year' } : undefined,
+      },
+      skills: skills
+        .filter((s) => s && s.skill_id)
+        .map((s) => ({ skill_id: s.skill_id, years_experience: Number(s.years_experience) || 0 })),
+      work_history: yearsExperience > 0 ? [{ start_date: startDate.toISOString().slice(0, 10), end_date: 'present' }] : [],
+      // screening_answers deliberately omitted -- deferred to a real
+      // signup, per the reconciled tier-zero design. The engine's
+      // screening-compatibility component degrades gracefully (partial
+      // credit, not a hard fail) when this is empty.
+      screening_answers: [],
+      exclusions: {
+        excluded_companies: [],
+        excluded_industries: Array.isArray(body.excludedIndustries) ? body.excludedIndustries : [],
+        required_remote_policy: body.remoteOk || 'no_preference',
+        dealbreakers: body.noWeekends ? [{ category: 'weekend_or_oncall_work', detail: 'Not available for weekend or on-call rotations.' }] : [],
+      },
+    };
+
+    const jobPostings = await prisma.jobPosting.findMany();
+    const results = jobPostings.map((row) => {
+      const posting = JSON.parse(row.posting);
+      const result = scoreApplication(previewProfile, posting);
+      return {
+        jobTitle: posting.title,
+        companyName: posting.company.name,
+        band: result.band,
+        totalScore: result.total_score,
+        reason: result.reason.pass_reason || result.reason.reject_reason,
+        location: posting.location,
+        salary: posting.salary,
+      };
+    });
+
+    const realMatches = results
+      .filter((r) => r.band !== 'reject')
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .slice(0, 3);
+
+    res.json({ matches: realMatches, totalPostingsEvaluated: results.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to run preview.' });
+  }
 });
 
 // GET /api/clients -- every client, with latest application status and
