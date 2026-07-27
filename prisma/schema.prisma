@@ -39,7 +39,8 @@ model Client {
   clientId     String        @unique // client-profile.schema.json's client_id (e.g. "maria-torres-2026")
   name         String
   email        String
-  profile      String        // full client-profile.schema.json document, JSON.stringify()'d
+  status       String? // client-profile.schema.json's top-level status enum (intake_pending/active/paused/landed/cancelled), promoted per subcon_dataschema's review -- cheap dashboard filter, same reasoning as Application.status/band
+  profile      String // full client-profile.schema.json document, JSON.stringify()'d
   applications Application[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -50,47 +51,70 @@ model JobPosting {
   jobId        String        @unique // job-posting.schema.json's job_id
   title        String
   companyName  String
-  posting      String        // full job-posting.schema.json document, JSON.stringify()'d
+  posting      String // full job-posting.schema.json document, JSON.stringify()'d
   applications Application[]
   createdAt    DateTime      @default(now())
 }
 
 model Application {
-  id                String     @id @default(cuid())
-  trackingId        String     @unique // application-tracking.schema.json's tracking_id
+  id         String @id @default(cuid())
+  trackingId String @unique // application-tracking.schema.json's tracking_id
 
-  clientId          String
-  client            Client     @relation(fields: [clientId], references: [id])
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
 
-  jobPostingId      String
-  jobPosting        JobPosting @relation(fields: [jobPostingId], references: [id])
+  jobPostingId String
+  jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id])
+
+  // Denormalized snapshots of the posting at match/evaluation time --
+  // application-tracking.schema.json requires these as top-level fields
+  // distinct from the live JobPosting relation specifically so a later
+  // re-scrape of the posting (title/company/link changing) can't
+  // retroactively rewrite what a client was actually evaluated and applied
+  // against. Set once at creation from the JobPosting values, then frozen
+  // -- never re-derived from the live relation. (Gap caught by
+  // subcon_dataschema's review; jobPosting.title/companyName above still
+  // reflect the *current* posting, for when that's what's wanted instead.)
+  jobTitleSnapshot  String
+  companySnapshot   String
+  applyLinkSnapshot String
 
   // Promoted from qualification_result for direct querying/sorting.
-  totalScore        Float?     // null when hard-gate rejected (no score computed)
-  band              String     // "qualified" | "borderline" | "reject"
-  passReason        String?
-  rejectReason      String?
+  totalScore   Float? // null when hard-gate rejected (no score computed)
+  band         String // "qualified" | "borderline" | "reject"
+  passReason   String?
+  rejectReason String?
 
   // application-tracking.schema.json's status enum, as a string (SQLite has
   // no native enum type; Postgres migration can promote this to a real enum
   // later without touching application code).
-  status            String
+  status String
 
   // Append-only status transition log -- application-tracking.schema.json's
   // status_history[], JSON.stringify()'d (see file header re: Json-as-String).
-  statusHistory     String
+  statusHistory String
 
   // The complete, unmodified output of engine/qualification-gate.js's
   // scoreApplication() -- hard_gates[], sub_scores[], reason{}, etc. --
   // JSON.stringify()'d, so the full audit trail survives even though only
   // a few fields are promoted to real columns above.
-  fullResult        String
+  fullResult String
 
   resumeVersionUsed String?
   dateApplied       DateTime?
 
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  // Three more application-tracking.schema.json top-level fields, siblings
+  // of qualification_result (not nested in it, so not covered by
+  // fullResult) -- caught missing entirely by subcon_dataschema's review.
+  // All nullable: none apply until later in an application's lifecycle
+  // (portal account only if the posting needs one; screening answers only
+  // once drafted; operator notes only if the operator writes any).
+  portalAccount        String? // status/platform/credential_reference JSON.stringify()'d -- never a raw credential, structural constraint from the JSON Schema
+  screeningAnswersUsed String? // snapshot of answers actually submitted, JSON.stringify()'d array -- kept separate from the live answer bank so this stays true even if the bank changes later
+  operatorNotes        String? // free-text, operator-only, never client-facing
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([band])
   @@index([clientId])

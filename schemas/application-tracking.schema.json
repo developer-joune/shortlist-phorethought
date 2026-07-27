@@ -54,7 +54,19 @@
           "description": "Auto-generated explanation, split by outcome rather than one generic string.",
           "properties": {
             "pass_reason": { "type": ["string", "null"], "description": "Populated when band is qualified (and optionally for the qualified side of a borderline case)." },
-            "reject_reason": { "type": ["string", "null"], "description": "Populated when band is reject (and optionally for the concerning side of a borderline case)." }
+            "reject_reason": { "type": ["string", "null"], "description": "Populated when band is reject (and optionally for the concerning side of a borderline case)." },
+            "pass_reason_components": {
+              "type": "array",
+              "description": "Ordered breakdown backing pass_reason -- the scoring components at >=80% of their max weight (qualgate rubric v1 sec4), highest first. This is the actual data contract subcon_brand's pass-reason card copy renders from, not just audit detail -- do not remove without checking that consumer. Populated alongside pass_reason; absent when not applicable (e.g. reject band, or no component clears the 80% filter).",
+              "items": {
+                "type": "object",
+                "required": ["component_name", "pct_of_max"],
+                "properties": {
+                  "component_name": { "type": "string", "description": "Matches a qualification_result.sub_scores[].name -- free string per the rubric, not enumerated here (same reasoning as sub_scores[].name)." },
+                  "pct_of_max": { "type": "number", "minimum": 0, "maximum": 100, "description": "This component's score as a percentage of its max possible weight." }
+                }
+              }
+            }
           }
         },
         "borderline_resolution": {

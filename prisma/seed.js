@@ -33,12 +33,14 @@ async function upsertClient(clientProfile) {
     update: {
       name: clientProfile.basics.name,
       email: clientProfile.basics.email,
+      status: clientProfile.status,
       profile: JSON.stringify(clientProfile),
     },
     create: {
       clientId: clientProfile.client_id,
       name: clientProfile.basics.name,
       email: clientProfile.basics.email,
+      status: clientProfile.status,
       profile: JSON.stringify(clientProfile),
     },
   });
@@ -70,6 +72,12 @@ async function seedApplication(clientProfile, jobPosting, clientRow, jobRow) {
   const data = {
     clientId: clientRow.id,
     jobPostingId: jobRow.id,
+    // Frozen at creation from the job posting as evaluated -- never
+    // re-derived from the live JobPosting relation afterward (see
+    // prisma/schema.prisma's comment on these three fields).
+    jobTitleSnapshot: jobPosting.title,
+    companySnapshot: jobPosting.company.name,
+    applyLinkSnapshot: jobPosting.source_url,
     totalScore: result.total_score,
     band: result.band,
     passReason: result.reason.pass_reason,

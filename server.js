@@ -36,6 +36,7 @@ app.get('/api/clients', async (req, res) => {
         clientId: client.clientId,
         name: client.name,
         email: client.email,
+        status: client.status,
         applicationCount: client.applications.length,
         averageScore,
         latestApplicationStatus: latest ? latest.status : null,
@@ -74,6 +75,7 @@ app.get('/api/clients/:id', async (req, res) => {
       clientId: client.clientId,
       name: client.name,
       email: client.email,
+      status: client.status,
       profile: JSON.parse(client.profile),
       applications: client.applications.map((a) => ({
         trackingId: a.trackingId,
@@ -84,6 +86,14 @@ app.get('/api/clients/:id', async (req, res) => {
         rejectReason: a.rejectReason,
         resumeVersionUsed: a.resumeVersionUsed,
         dateApplied: a.dateApplied,
+        // Frozen at match time -- may differ from jobPosting.title/companyName/
+        // sourceUrl below if the posting was later re-scraped and edited.
+        jobTitleSnapshot: a.jobTitleSnapshot,
+        companySnapshot: a.companySnapshot,
+        applyLinkSnapshot: a.applyLinkSnapshot,
+        portalAccount: a.portalAccount ? JSON.parse(a.portalAccount) : null,
+        screeningAnswersUsed: a.screeningAnswersUsed ? JSON.parse(a.screeningAnswersUsed) : null,
+        operatorNotes: a.operatorNotes,
         statusHistory: JSON.parse(a.statusHistory),
         fullResult: JSON.parse(a.fullResult),
         jobPosting: {
@@ -117,7 +127,11 @@ app.get('/api/applications', async (req, res) => {
       status: a.status,
       totalScore: a.totalScore,
       client: { clientId: a.client.clientId, name: a.client.name },
-      jobPosting: { jobId: a.jobPosting.jobId, title: a.jobPosting.title, companyName: a.jobPosting.companyName },
+      // Snapshot at match time -- what the operator queue should show, per
+      // application-tracking.schema.json's own reasoning for these fields.
+      jobTitleSnapshot: a.jobTitleSnapshot,
+      companySnapshot: a.companySnapshot,
+      applyLinkSnapshot: a.applyLinkSnapshot,
       fullResult: JSON.parse(a.fullResult),
       createdAt: a.createdAt,
     })));
