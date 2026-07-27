@@ -24,6 +24,13 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Required for cookie.secure: 'auto' (below) to work correctly behind the
+// Cloudflare tunnel: the tunnel terminates TLS at Cloudflare's edge and
+// proxies to this process over plain HTTP, so without trusting the proxy,
+// Express would see every request as HTTP and never set the Secure flag,
+// even on the public HTTPS domain.
+app.set('trust proxy', 1);
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
@@ -37,9 +44,12 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    // secure:true requires HTTPS -- off for local http://localhost dev,
-    // must be turned on before this ever runs in production.
-    secure: false,
+    // 'auto' (not a hardcoded true/false): express-session checks
+    // req.secure at set-time, which -- combined with trust proxy above --
+    // correctly resolves to true over the HTTPS tunnel and false over
+    // plain http://localhost, without branching on NODE_ENV ourselves.
+    secure: 'auto',
+    sameSite: 'lax',
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   },
 }));

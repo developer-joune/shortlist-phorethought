@@ -145,7 +145,12 @@
 </main>
 
 <script>
-  var API_BASE = 'http://localhost:3001';
+  // Same-origin, not a hardcoded host -- server.js serves this page and the
+  // API from the same origin, and that origin changes (localhost in dev, the
+  // Cloudflare tunnel's domain in the public-facing case). A hardcoded
+  // localhost:3001 here would silently fail for every real visitor whose
+  // browser has nothing listening on their own localhost:3001.
+  var API_BASE = window.location.origin;
   var clientId = new URLSearchParams(window.location.search).get('clientId');
   var content = document.getElementById('client-content');
 

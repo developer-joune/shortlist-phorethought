@@ -230,7 +230,7 @@
 <body>
 
 <div class="spec-note">
-  Wired to the live API (localhost:3001) — GET /api/me, gated behind client login (session
+  Wired to the live API (same origin as this page) — GET /api/me, gated behind client login (session
   cookie, no clientId in the URL or hardcoded anymore). Only applications with band !== "reject"
   are shown (internally-rejected jobs never reach the client). Card copy (qual-line) is the
   engine's real pass_reason string, not subcon_brand's narrative voice pass — worth a follow-up
@@ -253,7 +253,12 @@
 </main>
 
 <script>
-  var API_BASE = 'http://localhost:3001';
+  // Same-origin, not a hardcoded host -- server.js serves this page and the
+  // API from the same origin, and that origin changes (localhost in dev, the
+  // Cloudflare tunnel's domain in the public-facing case). A hardcoded
+  // localhost:3001 here would silently fail for every real visitor whose
+  // browser has nothing listening on their own localhost:3001.
+  var API_BASE = window.location.origin;
 
   document.getElementById('sign-out-link').addEventListener('click', function (e) {
     e.preventDefault();
