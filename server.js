@@ -391,16 +391,22 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Serves index.html at "/" and the other static prototype/reference pages
-// directly. Deliberately NOT a single express.static(__dirname) -- that
-// would also serve prisma/dev.db (now holding real bcrypt hashes), .env,
-// server.js, and node_modules over plain HTTP. Explicitly allowlisting the
-// same top-level paths index.html already links to, nothing more.
+// Serves the static prototype/reference pages directly. Deliberately NOT a
+// single express.static(__dirname) -- that would also serve prisma/dev.db
+// (now holding real bcrypt hashes), .env, server.js, and node_modules over
+// plain HTTP. Explicitly allowlisting the same top-level paths the site
+// actually links to, nothing more.
 const PUBLIC_DIRS = ['assets', 'design', 'engine', 'fixtures', 'legal', 'marketing', 'operator', 'reports', 'resume', 'schemas'];
 PUBLIC_DIRS.forEach((dir) => {
   app.use(`/${dir}`, express.static(path.join(__dirname, dir)));
 });
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+// "/" serves the real marketing landing page -- the actual entry point a
+// real visitor uses (marketing -> Get started -> login -> app) -- not the
+// old internal build-overview page, which moved to /overview.html (still
+// reachable, just no longer what a bare visit to the site loads).
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'marketing', 'index.html')));
+app.get('/overview.html', (req, res) => res.sendFile(path.join(__dirname, 'overview.html')));
 
 app.listen(PORT, () => {
   console.log(`Shortlist backend listening on http://localhost:${PORT}`);
